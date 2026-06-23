@@ -1,7 +1,5 @@
 # Calculadora da matriz de priorização do SEI
 
-> **Estado: Iteração 7 de 7 — protótipo completo.**
-
 ## O que é
 
 Protótipo navegável da **matriz de priorização de demandas do SEI** (Sistema
