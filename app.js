@@ -42,7 +42,7 @@ const CONFIG = {
 // Opções de listas controladas. Reaproveitadas em mais de um passo.
 const NATUREZAS = [
   { valor: 'problema', rotulo: 'Problema a resolver' },
-  { valor: 'pratica', rotulo: 'Prática em curso a elevar' },
+  { valor: 'pratica', rotulo: 'Prática em curso a difundir' },
 ];
 
 // Corretiva é tratada via Central de Atendimento, fora desta calculadora.
