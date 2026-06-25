@@ -160,6 +160,64 @@ main {
 .topico-loader .ajuda { margin-top: .6rem; }
 .topico-loader .aviso { margin-top: .6rem; }
 
+/* --- Tooltips contextuais (ícone ⓘ + popover discreto) ---------------- */
+.tip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+/* O ícone é um <button>; reseta o estilo padrão de botão. */
+.tip-icon {
+  background: none;
+  border: none;
+  color: var(--cor-primaria);
+  padding: 0 .15rem;
+  margin-left: .3rem;
+  font: inherit;
+  font-size: .95rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: help;
+  border-radius: 50%;
+}
+.tip-icon:hover { background: none; color: var(--cor-primaria-escura); }
+.tip-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  width: max-content;
+  max-width: 280px;
+  padding: .6rem .7rem;
+  background: var(--cor-painel);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+  font-size: .85rem;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+}
+/* Lista de opções com tooltip (campos select: natureza, camada) */
+.tooltip-opcoes {
+  list-style: none;
+  margin: .4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  font-size: .9rem;
+  color: var(--cor-texto-fraco);
+}
+.tooltip-opcoes li {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+}
+
 /* --- Campos de formulário --------------------------------------------- */
 .campo { margin-bottom: 1rem; }
 .campo label {
