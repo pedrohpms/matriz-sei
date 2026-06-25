@@ -1,0 +1,8 @@
+# Tooling de preview local (servidor estático PowerShell) — não faz parte do produto
+.claude/
+
+# Cruft de SO / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*~

@@ -71,7 +71,7 @@ window.REGUA = {
         + 'visibilidade restrita a um grupo pequeno.',
         // 2
         'Uma dimensão aparece com peso médio: normativa setorial que afeta um '
-        + 'grupo de órgãos; diretriz formal do SEGES/MGI; recomendação '
+        + 'grupo de órgãos; diretriz formal da SEGES/MGI; recomendação '
         + 'não-vinculante em relatório de auditoria; visibilidade entre usuários '
         + 'do SEI sem repercussão externa.',
         // 3
