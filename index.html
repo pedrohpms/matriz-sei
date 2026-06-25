@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora da matriz de priorização do SEI</title>
+  <title>Calculadora da matriz de priorização do SEI — Iteração 7</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topo">
     <h1>Matriz de priorização do SEI</h1>
     <p class="subtitulo">
-      Protótipo navegável -
+      Protótipo navegável - GPSEI 2026.
       Passo <strong id="progresso-atual">1</strong> de
       <strong id="progresso-total">6</strong>.
     </p>
@@ -80,6 +80,7 @@
       <div class="campo">
         <label for="id-natureza">Natureza do input</label>
         <select id="id-natureza"></select>
+        <ul class="tooltip-opcoes" id="natureza-tips"></ul>
       </div>
 
       <div class="campo">
@@ -95,13 +96,13 @@
       <div class="campo">
         <label for="id-dependencias">Dependências</label>
         <textarea id="id-dependencias" rows="2"
-          placeholder="Dependências técnicas ou normativas (texto livre). O que precisa estar resolvido antes, ou ainda, o que essa demanda destrava?"></textarea>
+          placeholder="Dependências técnicas ou normativas (texto livre)"></textarea>
       </div>
 
       <div class="campo">
         <label for="id-evidencia">Evidência</label>
-        <textarea id="id-evidencia" rows="3"
-          placeholder="Evidências ou métricas trazidas pelo solicitante. Pode ser quantitativo (tempo gasto na tarefa hoje, taxa de erro, número de execuções, volume de processos, quantidade de órgãos com o mesmo problema) ou qualitativo (relato estruturado de quem opera a prática que se quer elevar, ou de quem vive o problema)."></textarea>
+        <textarea id="id-evidencia" rows="2"
+          placeholder="Evidências ou métricas trazidas pelo solicitante"></textarea>
       </div>
     </section>
 
@@ -134,6 +135,7 @@
       <div class="campo">
         <label for="curadoria-camada">Camada validada</label>
         <select id="curadoria-camada"></select>
+        <ul class="tooltip-opcoes" id="camada-tips"></ul>
       </div>
     </section>
 
