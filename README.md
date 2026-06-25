@@ -1,5 +1,7 @@
 # Calculadora da matriz de priorização do SEI
 
+> **Estado: Iteração 7 de 7 — protótipo completo.**
+
 ## O que é
 
 Protótipo navegável da **matriz de priorização de demandas do SEI** (Sistema
@@ -42,8 +44,8 @@ Três regras estruturam o fluxo:
 
 Não há servidor nem build. **Abra o `index.html` no navegador** (duplo clique
 ou arraste para uma janela do Chrome, Edge ou Firefox). Os arquivos
-`index.html`, `app.js`, `regua.js` e `styles.css` precisam ficar na mesma
-pasta.
+`index.html`, `app.js`, `regua.js`, `tooltips.js` e `styles.css` precisam
+ficar na mesma pasta.
 
 > Por que sem servidor? O protótipo é todo vanilla (HTML + CSS + JS, sem
 > dependências e sem build) para ser embarcado no ParticiPEN com o menor
@@ -111,6 +113,34 @@ referenciam, como `impacto`/`ganho` no filtro 0+0 e `complexidade` no teto);
 `REGUA.versao` segue **semver** (começa em `1.0.0`). Suba a versão ao alterar
 descritores — ela é gravada na memória de cálculo como `versaoRegua`, para
 rastrear sob qual régua cada avaliação foi feita.
+
+## Tooltips contextuais
+
+Vários campos têm um ícone **ⓘ** ao lado que abre um *popover* discreto com
+contexto: as opções de **Natureza** (Passo 1), os campos **Dependências** e
+**Evidência** (Passo 1), as cinco opções de **piso obrigatório** (Passo 2) e
+as cinco **camadas** (Passo 3). O Passo 4 (critérios) não tem tooltip — a régua
+já carrega o contexto. O tooltip abre por *hover*, foco via Tab e *tap* (mobile),
+e fecha com ESC ou clique fora; o leitor de tela lê o conteúdo via
+`aria-describedby`.
+
+O conteúdo vive em **`tooltips.js`** (estrutura plana `chave: texto`), carregado
+dinamicamente por `app.js` na inicialização — mesma estratégia da régua
+(`<script>` em vez de `fetch`, pelo mesmo motivo de `file://`). É o arquivo que
+faz o papel do `tooltips.json` pedido; o carregamento é **não-fatal** (se
+falhar, o fluxo segue sem os ícones). O conteúdo é versionado **manualmente** —
+não há sincronização automática com a régua.
+
+### Diretrizes de redação de tooltips
+
+Ao criar novos tooltips (quando a régua evoluir):
+
+- Cada tooltip tem entre uma e três frases.
+- pt-BR, sem jargão técnico desnecessário.
+- Opção de piso: incluir 1–2 exemplos concretos para ancorar.
+- Camada: incluir o teto de complexidade que ela estabelece.
+- Não duplicar o que está no descritor da nota — acrescentar contexto,
+  exemplo ou contraste.
 
 ## Integração com o ParticiPEN
 
@@ -205,6 +235,7 @@ Pontos frágeis, edge cases e candidatos a refactor estão em
 | `index.html` | Marcação dos seis passos, stepper e navegação. |
 | `app.js` | Estado, fluxo, regras, parser do Discourse, memória, acessibilidade. |
 | `regua.js` | Dados da régua canônica dos cinco critérios (sem lógica). |
+| `tooltips.js` | Conteúdo dos tooltips contextuais (`chave: texto`, sem lógica). |
 | `styles.css` | Estilo, paleta em variáveis CSS, responsivo, foco/contraste. |
 | `exemplos/` | Casos prontos (JSON) + referência do Topic Template. |
 | `REVISAO.md` | Revisão crítica para o próximo ciclo. |
