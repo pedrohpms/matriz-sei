@@ -40,9 +40,10 @@ const CONFIG = {
  * ------------------------------------------------------------------ */
 
 // Opções de listas controladas. Reaproveitadas em mais de um passo.
+// `tooltip` aponta para a chave em tooltips.js (conteúdo contextual).
 const NATUREZAS = [
-  { valor: 'problema', rotulo: 'Problema a resolver' },
-  { valor: 'pratica', rotulo: 'Prática em curso a difundir' },
+  { valor: 'problema', rotulo: 'Problema a resolver', tooltip: 'natureza_problema' },
+  { valor: 'pratica', rotulo: 'Prática em curso a difundir', tooltip: 'natureza_pratica' },
 ];
 
 // Corretiva é tratada via Central de Atendimento, fora desta calculadora.
@@ -50,11 +51,11 @@ const TRILHAS = ['Melhoria', 'Evolutiva', 'Normativa'];
 
 // Camadas em ordem crescente de complexidade/abrangência.
 const CAMADAS = [
-  { valor: 'uso-local', rotulo: 'Uso local' },
-  { valor: 'grupo', rotulo: 'Grupo' },
-  { valor: 'vitrine', rotulo: 'Vitrine' },
-  { valor: 'modulo-pen', rotulo: 'Módulo PEN' },
-  { valor: 'core-sei', rotulo: 'Core SEI' },
+  { valor: 'uso-local', rotulo: 'Uso local', tooltip: 'camada_uso_local' },
+  { valor: 'grupo', rotulo: 'Grupo', tooltip: 'camada_grupo' },
+  { valor: 'vitrine', rotulo: 'Vitrine', tooltip: 'camada_vitrine' },
+  { valor: 'modulo-pen', rotulo: 'Módulo PEN', tooltip: 'camada_modulo_pen' },
+  { valor: 'core-sei', rotulo: 'Core SEI', tooltip: 'camada_core_sei' },
 ];
 
 // Teto da nota de Complexidade (escala invertida) por camada validada.
@@ -70,17 +71,21 @@ const TETOS_CAMADA = {
 
 // Gatilhos do piso obrigatório (Passo 2 — Triagem).
 const GATILHOS_PISO = [
-  { chave: 'obrigacaoLegal', rotulo: 'Obrigação legal' },
-  { chave: 'determinacaoControle', rotulo: 'Determinação de órgão de controle' },
-  { chave: 'seguranca', rotulo: 'Falha de segurança' },
-  { chave: 'sustentacao', rotulo: 'Sustentação tecnológica' },
-  { chave: 'continuidade', rotulo: 'Continuidade do serviço' },
+  { chave: 'obrigacaoLegal', rotulo: 'Obrigação legal', tooltip: 'piso_obrigacao_legal' },
+  { chave: 'determinacaoControle', rotulo: 'Determinação de órgão de controle', tooltip: 'piso_determinacao_controle' },
+  { chave: 'seguranca', rotulo: 'Falha de segurança', tooltip: 'piso_falha_seguranca' },
+  { chave: 'sustentacao', rotulo: 'Sustentação tecnológica', tooltip: 'piso_sustentacao_tecnologica' },
+  { chave: 'continuidade', rotulo: 'Continuidade do serviço', tooltip: 'piso_continuidade_operacional' },
 ];
 
 // Os cinco critérios da matriz vêm da régua canônica (regua.js), carregada
 // dinamicamente em init(). O fluxo só consome este array — não conhece os
 // textos dos descritores. Preenchido por carregarRegua().
 let CRITERIOS = [];
+
+// Conteúdo dos tooltips (tooltips.js), no formato { chave: texto }.
+// Preenchido por carregarTooltips(); vazio se a carga falhar (enhancement).
+let TOOLTIPS = {};
 
 const TOTAL_PASSOS = 6;
 
@@ -196,6 +201,123 @@ function todosCriteriosPontuados() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Tooltips contextuais (ícone ⓘ + popover discreto)
+ *
+ * Gatilhos: hover, foco (Tab) e clique/tap. Fecham com ESC ou clique fora.
+ * O conteúdo vem de tooltips.js (TOOLTIPS[chave]); aria-describedby liga o
+ * ícone ao texto, lido por leitores de tela quando o ícone recebe foco.
+ * ------------------------------------------------------------------ */
+
+let tooltipAberto = null; // só um popover aberto por vez
+
+function mostrarTooltip(wrap) {
+  if (tooltipAberto && tooltipAberto !== wrap) esconderTooltip(tooltipAberto, true);
+  wrap.querySelector('.tip-popover').hidden = false;
+  tooltipAberto = wrap;
+}
+
+function esconderTooltip(wrap, forcar) {
+  if (!forcar && wrap.dataset.fixado) return; // mantém aberto se foi "fixado" por clique
+  if (forcar) delete wrap.dataset.fixado;
+  wrap.querySelector('.tip-popover').hidden = true;
+  if (tooltipAberto === wrap) tooltipAberto = null;
+}
+
+// Cria o ícone ⓘ + popover para uma chave de tooltips.js. Retorna null se
+// não houver texto (assim, sem tooltips.js, nenhum ícone vazio é renderizado).
+function criarTooltipEl(chave) {
+  const texto = TOOLTIPS && TOOLTIPS[chave];
+  if (!texto) return null;
+
+  const wrap = document.createElement('span');
+  wrap.className = 'tip-wrap';
+  const id = `tip-${chave}`;
+
+  const icone = document.createElement('button');
+  icone.type = 'button';
+  icone.className = 'tip-icon';
+  icone.tabIndex = 0;
+  icone.setAttribute('aria-describedby', id);
+  icone.setAttribute('aria-label', 'Mais informações');
+  icone.textContent = 'ⓘ';
+
+  const pop = document.createElement('div');
+  pop.className = 'tip-popover';
+  pop.id = id;
+  pop.setAttribute('role', 'tooltip');
+  pop.textContent = texto;
+  pop.hidden = true;
+
+  wrap.appendChild(icone);
+  wrap.appendChild(pop);
+
+  icone.addEventListener('mouseenter', () => mostrarTooltip(wrap));
+  icone.addEventListener('mouseleave', () => esconderTooltip(wrap, false));
+  icone.addEventListener('focus', () => mostrarTooltip(wrap));
+  icone.addEventListener('blur', () => esconderTooltip(wrap, false));
+  icone.addEventListener('click', (e) => {
+    // Tap (mobile) e clique alternam um estado "fixado" que ignora mouseleave/blur.
+    e.preventDefault();
+    e.stopPropagation();
+    if (wrap.dataset.fixado) {
+      esconderTooltip(wrap, true);
+    } else {
+      wrap.dataset.fixado = '1';
+      mostrarTooltip(wrap);
+    }
+  });
+
+  return wrap;
+}
+
+// Liga ESC e clique-fora para fechar o popover aberto. Chamado uma vez.
+function ligarFechamentoGlobalTooltip() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tooltipAberto) esconderTooltip(tooltipAberto, true);
+  });
+  document.addEventListener('click', (e) => {
+    if (tooltipAberto && !e.target.closest('.tip-wrap')) esconderTooltip(tooltipAberto, true);
+  });
+}
+
+// Anexa o ícone de tooltip ao <label for="..."> de um campo.
+function tooltipNoLabel(seletorCampo, chave) {
+  const campo = $(seletorCampo);
+  if (!campo) return;
+  const label = document.querySelector(`label[for="${campo.id}"]`);
+  const el = criarTooltipEl(chave);
+  if (label && el) label.appendChild(el);
+}
+
+// Preenche uma lista <ul> com um item por opção (rótulo + ícone de tooltip).
+// Usado para campos <select> (natureza, camada), onde cada opção tem tooltip.
+function preencherTooltipsOpcoes(seletorLista, lista) {
+  const ul = $(seletorLista);
+  if (!ul) return;
+  ul.innerHTML = '';
+  lista.forEach((item) => {
+    if (!item.tooltip) return;
+    const el = criarTooltipEl(item.tooltip);
+    if (!el) return;
+    const li = document.createElement('li');
+    const nome = document.createElement('span');
+    nome.textContent = item.rotulo;
+    li.appendChild(nome);
+    li.appendChild(el);
+    ul.appendChild(li);
+  });
+}
+
+// Aplica os tooltips dos campos estáticos e das listas de opções (Passos 1 e 3).
+// Os gatilhos do Passo 2 recebem tooltip direto em renderTriagem().
+function aplicarTooltips() {
+  tooltipNoLabel('#id-dependencias', 'dependencias');
+  tooltipNoLabel('#id-evidencia', 'evidencia');
+  preencherTooltipsOpcoes('#natureza-tips', NATUREZAS);
+  preencherTooltipsOpcoes('#camada-tips', CAMADAS);
+}
+
+/* ------------------------------------------------------------------ *
  * Construção dinâmica de campos
  * ------------------------------------------------------------------ */
 
@@ -222,6 +344,10 @@ function renderTriagem() {
     wrap.innerHTML = `
       <input type="checkbox" id="${id}" data-gatilho="${g.chave}" />
       <span>${g.rotulo}</span>`;
+    // O ícone ⓘ é conteúdo interativo dentro do label: clicar nele não
+    // alterna o checkbox (o handler ainda faz stopPropagation por garantia).
+    const tip = g.tooltip && criarTooltipEl(g.tooltip);
+    if (tip) wrap.appendChild(tip);
     container.appendChild(wrap);
   });
 }
@@ -1412,6 +1538,24 @@ function carregarRegua() {
   });
 }
 
+// Carrega tooltips.js (mesma estratégia de injeção de <script> da régua).
+// Não-fatal: tooltips são um aprimoramento; se falhar, o fluxo segue sem eles.
+function carregarTooltips() {
+  return new Promise((resolve, reject) => {
+    if (window.TOOLTIPS) {
+      resolve(window.TOOLTIPS);
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'tooltips.js';
+    s.onload = () => (window.TOOLTIPS
+      ? resolve(window.TOOLTIPS)
+      : reject(new Error('tooltips.js carregou, mas TOOLTIPS não está definido.')));
+    s.onerror = () => reject(new Error('Não foi possível carregar tooltips.js.'));
+    document.head.appendChild(s);
+  });
+}
+
 function mostrarErroRegua(erro) {
   const main = document.querySelector('main');
   const aviso = document.createElement('p');
@@ -1436,6 +1580,13 @@ async function init() {
     return;
   }
 
+  // Tooltips são um aprimoramento — se a carga falhar, segue sem eles.
+  try {
+    TOOLTIPS = await carregarTooltips();
+  } catch (erro) {
+    TOOLTIPS = {};
+  }
+
   // Estado de pontuação e observações derivado das chaves da régua.
   CRITERIOS.forEach((c) => {
     estado.pontuacao[c.chave] = null;
@@ -1450,7 +1601,9 @@ async function init() {
 
   renderTriagem();
   renderCriterios();
+  aplicarTooltips();
   ligarEventos();
+  ligarFechamentoGlobalTooltip();
 
   // Placeholder do campo de URL reflete a base configurada do ParticiPEN.
   $('#id-topico-url').placeholder = `${CONFIG.discourseBaseUrl}/t/minha-demanda/123`;
