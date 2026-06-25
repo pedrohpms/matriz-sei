@@ -1,0 +1,88 @@
+{
+  "_comentario": "Alta prioridade e alcance máximo (toda a APF), mas caro e arriscado. Estressa o teto de complexidade da camada Core SEI: complexidade fica fixada em 0 (sem override possível). Impacto e ganho no topo, complexidade e risco no fundo. Score 13/20.",
+  "versaoRegua": "1.2.0",
+  "timestamp": "2026-06-20T14:40:00-03:00",
+  "avaliador": "Comitê de Priorização",
+  "origemDosDados": "preenchimento manual",
+  "urlTopico": null,
+  "camposAjustadosManualmente": [],
+  "pisoAcionado": false,
+  "pisoJustificativa": null,
+  "desfecho": {
+    "codigo": "normal",
+    "rotulo": "Avaliação completa pela matriz",
+    "mensagem": "Avaliação completa pela matriz."
+  },
+  "identificacao": {
+    "titulo": "Índice federado de pesquisa pública de processos para toda a APF",
+    "descricao": "Implantar um índice de consulta pública de processos abrangendo todos os órgãos usuários do SEI, alinhado à política de transparência ativa do governo.",
+    "linkPublico": "",
+    "natureza": { "valor": "problema", "rotulo": "Problema a resolver" },
+    "trilha": "Evolutiva",
+    "camadaProposta": { "valor": "core-sei", "rotulo": "Core SEI" },
+    "dependencias": "Revisão da política de sigilo e do controle de acesso; alteração estrutural no núcleo do SEI.",
+    "evidencia": "Demanda reiterada por órgãos de controle e por organizações da sociedade civil."
+  },
+  "triagem": {
+    "pisoAcionado": false,
+    "gatilhos": [
+      { "chave": "obrigacaoLegal", "rotulo": "Obrigação legal", "marcado": false },
+      { "chave": "determinacaoControle", "rotulo": "Determinação de órgão de controle", "marcado": false },
+      { "chave": "seguranca", "rotulo": "Falha de segurança", "marcado": false },
+      { "chave": "sustentacao", "rotulo": "Sustentação tecnológica", "marcado": false },
+      { "chave": "continuidade", "rotulo": "Continuidade do serviço", "marcado": false }
+    ]
+  },
+  "curadoria": {
+    "camadaValidada": { "valor": "core-sei", "rotulo": "Core SEI" },
+    "tetoComplexidade": 0
+  },
+  "criterios": [
+    {
+      "chave": "impacto",
+      "rotulo": "Impacto institucional",
+      "invertido": false,
+      "nota": 4,
+      "descritor": "Dimensão crítica dentro do discricionário: programa prioritário de governo com prazo e cobrança; recomendação reiterada de controle sob forte pressão (sem ainda configurar determinação); compromisso público com sociedade civil cobrado em conselho; risco reputacional concreto.",
+      "observacao": "Alinhado à agenda de transparência ativa."
+    },
+    {
+      "chave": "orgaos",
+      "rotulo": "Quantidade de órgãos afetados",
+      "invertido": false,
+      "nota": 4,
+      "descritor": "Múltiplos segmentos, ou transversal à esfera federal (>150 órgãos).",
+      "observacao": ""
+    },
+    {
+      "chave": "ganho",
+      "rotulo": "Ganho operacional",
+      "invertido": false,
+      "nota": 4,
+      "descritor": "Ganho estrutural: remove uma etapa inteira, um contorno manual obrigatório, ou uma fonte sistemática de erro.",
+      "observacao": ""
+    },
+    {
+      "chave": "complexidade",
+      "rotulo": "Complexidade",
+      "invertido": true,
+      "nota": 0,
+      "descritor": "Altíssima. Core SEI ou mudança estrutural; revisão jurídica/normativa formal; prazo e escopo incertos.",
+      "observacao": "Camada Core SEI fixa a complexidade em 0."
+    },
+    {
+      "chave": "risco",
+      "rotulo": "Risco",
+      "invertido": true,
+      "nota": 1,
+      "descritor": "Alto. Mexe em algo crítico ou amplamente usado; reversão custosa.",
+      "observacao": ""
+    }
+  ],
+  "filtros": {
+    "pisoObrigatorio": { "acionado": false, "passo": 2, "gatilhos": [] },
+    "convenienciaLocal": { "acionado": false, "passo": 5 }
+  },
+  "overrides": [],
+  "score": { "total": 13, "maximo": 20, "texto": "13/20" }
+}

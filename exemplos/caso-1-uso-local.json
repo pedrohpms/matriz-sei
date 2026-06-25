@@ -1,0 +1,88 @@
+{
+  "_comentario": "Caso típico de baixo alcance: melhoria local, barata e segura. Estressa o fluxo 'feliz' sem filtros nem override — entra pela matriz e sai com score médio (10/20). Camada uso local => teto de complexidade 4.",
+  "versaoRegua": "1.2.0",
+  "timestamp": "2026-06-20T13:15:00-03:00",
+  "avaliador": "Equipe GPSEI",
+  "origemDosDados": "preenchimento manual",
+  "urlTopico": null,
+  "camposAjustadosManualmente": [],
+  "pisoAcionado": false,
+  "pisoJustificativa": null,
+  "desfecho": {
+    "codigo": "normal",
+    "rotulo": "Avaliação completa pela matriz",
+    "mensagem": "Avaliação completa pela matriz."
+  },
+  "identificacao": {
+    "titulo": "Atalho de teclado para assinar o documento aberto",
+    "descricao": "Permitir assinar o documento atualmente aberto por um atalho de teclado, sem precisar abrir o menu de assinatura.",
+    "linkPublico": "",
+    "natureza": { "valor": "problema", "rotulo": "Problema a resolver" },
+    "trilha": "Melhoria",
+    "camadaProposta": { "valor": "uso-local", "rotulo": "Uso local" },
+    "dependencias": "",
+    "evidencia": "Sugerido por usuários em treinamento interno."
+  },
+  "triagem": {
+    "pisoAcionado": false,
+    "gatilhos": [
+      { "chave": "obrigacaoLegal", "rotulo": "Obrigação legal", "marcado": false },
+      { "chave": "determinacaoControle", "rotulo": "Determinação de órgão de controle", "marcado": false },
+      { "chave": "seguranca", "rotulo": "Falha de segurança", "marcado": false },
+      { "chave": "sustentacao", "rotulo": "Sustentação tecnológica", "marcado": false },
+      { "chave": "continuidade", "rotulo": "Continuidade do serviço", "marcado": false }
+    ]
+  },
+  "curadoria": {
+    "camadaValidada": { "valor": "uso-local", "rotulo": "Uso local" },
+    "tetoComplexidade": 4
+  },
+  "criterios": [
+    {
+      "chave": "impacto",
+      "rotulo": "Impacto institucional",
+      "invertido": false,
+      "nota": 1,
+      "descritor": "Uma dimensão aparece de forma marginal: diretriz informal local, tema lateral em reunião com controle sem recomendação formal, ou visibilidade restrita a um grupo pequeno.",
+      "observacao": ""
+    },
+    {
+      "chave": "orgaos",
+      "rotulo": "Quantidade de órgãos afetados",
+      "invertido": false,
+      "nota": 0,
+      "descritor": "1 órgão, em uso estritamente local, sem reuso possível.",
+      "observacao": ""
+    },
+    {
+      "chave": "ganho",
+      "rotulo": "Ganho operacional",
+      "invertido": false,
+      "nota": 2,
+      "descritor": "Ganho perceptível em tarefa regular: reduz tempo ou erro de forma mensurável em uso semanal a diário, mantendo a forma de trabalhar.",
+      "observacao": "Assinatura é tarefa diária para o público-alvo."
+    },
+    {
+      "chave": "complexidade",
+      "rotulo": "Complexidade",
+      "invertido": true,
+      "nota": 4,
+      "descritor": "Trivial. Camada de uso local; uma área envolvida; sem dependências; entrega em dias.",
+      "observacao": ""
+    },
+    {
+      "chave": "risco",
+      "rotulo": "Risco",
+      "invertido": true,
+      "nota": 3,
+      "descritor": "Baixo. Efeito colateral improvável; reversão simples.",
+      "observacao": ""
+    }
+  ],
+  "filtros": {
+    "pisoObrigatorio": { "acionado": false, "passo": 2, "gatilhos": [] },
+    "convenienciaLocal": { "acionado": false, "passo": 5 }
+  },
+  "overrides": [],
+  "score": { "total": 10, "maximo": 20, "texto": "10/20" }
+}

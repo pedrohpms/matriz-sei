@@ -1,0 +1,88 @@
+{
+  "_comentario": "Estressa o filtro automático 0+0 do Passo 5: nota 0 em impacto institucional E em ganho operacional encerra como conveniência estritamente local, mesmo com complexidade e risco baixos. Mostra que score alto em critérios secundários não salva a demanda. Desfecho: conveniencia-local.",
+  "versaoRegua": "1.2.0",
+  "timestamp": "2026-06-20T15:05:00-03:00",
+  "avaliador": "Equipe GPSEI",
+  "origemDosDados": "preenchimento manual",
+  "urlTopico": null,
+  "camposAjustadosManualmente": [],
+  "pisoAcionado": false,
+  "pisoJustificativa": null,
+  "desfecho": {
+    "codigo": "conveniencia-local",
+    "rotulo": "Conveniência estritamente local",
+    "mensagem": "Demanda tratada como conveniência estritamente local — não disputa fila, e é encaminhada à camada de uso local."
+  },
+  "identificacao": {
+    "titulo": "Trocar a cor do cabeçalho do SEI no órgão X",
+    "descricao": "Alterar a cor do cabeçalho da interface para a identidade visual do órgão X.",
+    "linkPublico": "",
+    "natureza": { "valor": "pratica", "rotulo": "Prática em curso a elevar" },
+    "trilha": "Melhoria",
+    "camadaProposta": { "valor": "uso-local", "rotulo": "Uso local" },
+    "dependencias": "",
+    "evidencia": ""
+  },
+  "triagem": {
+    "pisoAcionado": false,
+    "gatilhos": [
+      { "chave": "obrigacaoLegal", "rotulo": "Obrigação legal", "marcado": false },
+      { "chave": "determinacaoControle", "rotulo": "Determinação de órgão de controle", "marcado": false },
+      { "chave": "seguranca", "rotulo": "Falha de segurança", "marcado": false },
+      { "chave": "sustentacao", "rotulo": "Sustentação tecnológica", "marcado": false },
+      { "chave": "continuidade", "rotulo": "Continuidade do serviço", "marcado": false }
+    ]
+  },
+  "curadoria": {
+    "camadaValidada": { "valor": "uso-local", "rotulo": "Uso local" },
+    "tetoComplexidade": 4
+  },
+  "criterios": [
+    {
+      "chave": "impacto",
+      "rotulo": "Impacto institucional",
+      "invertido": false,
+      "nota": 0,
+      "descritor": "Nenhuma das dimensões aparece. Demanda de conveniência local.",
+      "observacao": ""
+    },
+    {
+      "chave": "orgaos",
+      "rotulo": "Quantidade de órgãos afetados",
+      "invertido": false,
+      "nota": 0,
+      "descritor": "1 órgão, em uso estritamente local, sem reuso possível.",
+      "observacao": ""
+    },
+    {
+      "chave": "ganho",
+      "rotulo": "Ganho operacional",
+      "invertido": false,
+      "nota": 0,
+      "descritor": "Nenhum ganho prático. Mudança cosmética.",
+      "observacao": ""
+    },
+    {
+      "chave": "complexidade",
+      "rotulo": "Complexidade",
+      "invertido": true,
+      "nota": 4,
+      "descritor": "Trivial. Camada de uso local; uma área envolvida; sem dependências; entrega em dias.",
+      "observacao": ""
+    },
+    {
+      "chave": "risco",
+      "rotulo": "Risco",
+      "invertido": true,
+      "nota": 4,
+      "descritor": "Desprezível. Mudança isolada e reversível.",
+      "observacao": ""
+    }
+  ],
+  "filtros": {
+    "pisoObrigatorio": { "acionado": false, "passo": 2, "gatilhos": [] },
+    "convenienciaLocal": { "acionado": true, "passo": 5 }
+  },
+  "overrides": [],
+  "score": { "total": 8, "maximo": 20, "texto": "8/20" }
+}

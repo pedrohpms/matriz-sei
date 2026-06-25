@@ -1,0 +1,53 @@
+{
+  "_comentario": "Estressa o piso obrigatório: uma falha de segurança aciona o gatilho no Passo 2, a demanda recebe score fixo de 20 (prioridade absoluta), pula a pontuação dos cinco critérios e vai direto à memória. Note pisoAcionado=true, pisoJustificativa='seguranca' e criterios sem nota.",
+  "versaoRegua": "1.2.0",
+  "timestamp": "2026-06-22T09:10:00-03:00",
+  "avaliador": "Equipe GPSEI",
+  "origemDosDados": "preenchimento manual",
+  "urlTopico": null,
+  "camposAjustadosManualmente": [],
+  "pisoAcionado": true,
+  "pisoJustificativa": "seguranca",
+  "desfecho": {
+    "codigo": "piso",
+    "rotulo": "Piso obrigatório (ato vinculado)",
+    "mensagem": "Demanda enquadrada como piso obrigatório (ato vinculado) — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
+  },
+  "identificacao": {
+    "titulo": "Administrador consegue gerir usuários de outro órgão (isolamento quebrado)",
+    "descricao": "Em instalação multi-órgãos, um administrador de um órgão consegue cadastrar e gerir usuários de outro órgão, violando o isolamento entre órgãos.",
+    "linkPublico": "",
+    "natureza": { "valor": "problema", "rotulo": "Problema a resolver" },
+    "trilha": "Normativa",
+    "camadaProposta": { "valor": "core-sei", "rotulo": "Core SEI" },
+    "dependencias": "Revisão do controle de acesso por órgão no SIP.",
+    "evidencia": ""
+  },
+  "triagem": {
+    "pisoAcionado": true,
+    "gatilhos": [
+      { "chave": "obrigacaoLegal", "rotulo": "Obrigação legal", "marcado": false },
+      { "chave": "determinacaoControle", "rotulo": "Determinação de órgão de controle", "marcado": false },
+      { "chave": "seguranca", "rotulo": "Falha de segurança", "marcado": true },
+      { "chave": "sustentacao", "rotulo": "Sustentação tecnológica", "marcado": false },
+      { "chave": "continuidade", "rotulo": "Continuidade do serviço", "marcado": false }
+    ]
+  },
+  "curadoria": {
+    "camadaValidada": { "valor": "core-sei", "rotulo": "Core SEI" },
+    "tetoComplexidade": 0
+  },
+  "criterios": [
+    { "chave": "impacto", "rotulo": "Impacto institucional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "orgaos", "rotulo": "Quantidade de órgãos afetados", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "ganho", "rotulo": "Ganho operacional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "complexidade", "rotulo": "Complexidade", "invertido": true, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "risco", "rotulo": "Risco", "invertido": true, "nota": null, "descritor": null, "observacao": "" }
+  ],
+  "filtros": {
+    "pisoObrigatorio": { "acionado": true, "passo": 2, "gatilhos": ["Falha de segurança"] },
+    "convenienciaLocal": { "acionado": false, "passo": 5 }
+  },
+  "overrides": [],
+  "score": { "total": 20, "maximo": 20, "texto": "20/20" }
+}
