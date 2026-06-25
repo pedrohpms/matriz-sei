@@ -70,6 +70,18 @@ conscientes e decisões que merecem um segundo olhar.
    padronizar todos para objeto. O `descricao` não entra na memória de cálculo
    (só os `descritores[nota]` entram), então a mudança não afetou o JSON.
 
+10. **Tooltips (Patch 3): posicionamento fixo e versionamento manual.** O
+    popover (`.tip-popover`) abre sempre abaixo-à-esquerda (`top: 100%; left: 0`)
+    e tem `max-width: 280px`. Hoje todos os ícones ⓘ ficam à esquerda nas linhas,
+    então não há *overflow* à direita; se algum ⓘ for parar perto da borda
+    direita no futuro, o popover pode vazar (não há reposicionamento dinâmico —
+    seria um próximo passo). O conteúdo vive em `tooltips.js` (faz o papel do
+    `tooltips.json` pedido — `.js`+`<script>` pelo mesmo motivo de `file://` da
+    régua) e é **versionado manualmente**: ao mudar a régua (camadas, tetos,
+    piso), lembrar de revisar `tooltips.js`, pois não há sincronização em runtime
+    (fora de escopo do MVP). A carga é não-fatal: se `tooltips.js` falhar, os
+    ícones simplesmente não aparecem e o fluxo segue.
+
 ## 2. Trechos que cabem refactor (não feito agora — só apontando)
 
 1. **Índices de passo "mágicos".** `avancar()`, `voltar()` e `mostrarPasso()`
