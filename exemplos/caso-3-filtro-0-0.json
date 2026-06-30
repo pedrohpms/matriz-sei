@@ -17,7 +17,7 @@
     "titulo": "Trocar a cor do cabeçalho do SEI no órgão X",
     "descricao": "Alterar a cor do cabeçalho da interface para a identidade visual do órgão X.",
     "linkPublico": "",
-    "natureza": { "valor": "pratica", "rotulo": "Prática em curso a elevar" },
+    "natureza": { "valor": "pratica", "rotulo": "Prática em curso a difundir" },
     "trilha": "Melhoria",
     "camadaProposta": { "valor": "uso-local", "rotulo": "Uso local" },
     "dependencias": "",
