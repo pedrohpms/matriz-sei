@@ -23,7 +23,7 @@ window.TOOLTIPS = {
     + 'quando houver dado disponível, mas não é obrigatória.',
   natureza_pratica:
     'Demanda que entra como solução já rodando em algum órgão. O pedido é '
-    + 'elevar a prática a uma camada superior (por exemplo, de uso local para '
+    + 'difundir a prática para uma camada superior (por exemplo, de uso local para '
     + 'grupo, ou de grupo para vitrine). Evidência é obrigatória — métricas ou '
     + 'relato estruturado da área que opera a prática.',
   dependencias:
@@ -35,7 +35,7 @@ window.TOOLTIPS = {
     'O que comprova que a demanda merece atenção. Pode ser quantitativo (tempo '
     + 'gasto na tarefa hoje, taxa de erro, número de execuções, volume de '
     + 'processos, quantidade de órgãos com o mesmo problema) ou qualitativo '
-    + '(relato estruturado de quem opera a prática que se quer elevar, ou de '
+    + '(relato estruturado de quem opera a prática que se quer difundir, ou de '
     + 'quem vive o problema).',
 
   piso_obrigacao_legal:
