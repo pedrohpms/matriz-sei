@@ -16,7 +16,7 @@ de 0 a 20:
 1. **Impacto institucional** — aspecto **discricionário** (prioridade de
    governo, recomendação de controle não vinculante, compromisso firmado,
    visibilidade externa). Obrigação legal e determinação de controle são
-   vinculantes — não entram aqui, vão para o piso (Passo 2).
+   vinculantes — não entram aqui, vão para o ato vinculado (Passo 2).
 2. **Quantidade de órgãos afetados** — quantos entes da esfera federal se
    beneficiam.
 3. **Ganho operacional** — ganho típico para um órgão que adota a solução.
@@ -31,27 +31,18 @@ Três regras estruturam o fluxo:
   grupo → vitrine → módulo PEN → core SEI) limita a nota de Complexidade.
   Nota acima do teto exige justificativa (*override*); Core SEI fixa a nota
   em 0.
-- **Piso obrigatório, *ato vinculado* (Passo 2)** — obrigação legal,
-  determinação de órgão de controle, falha de segurança, sustentação ou
-  continuidade fazem a demanda receber **score fixo de 20** (prioridade
-  absoluta), pular a pontuação e entrar na fila já no topo do ranking. É um
-  ato vinculado: a norma manda, sem juízo discricionário (em contraste com o
-  Impacto institucional, que é discricionário).
+- **Ato vinculado (Passo 2)** — obrigação legal, determinação de órgão de
+  controle, falha de segurança, sustentação ou continuidade fazem a demanda
+  receber **score fixo de 20** (prioridade absoluta), pular a pontuação e
+  entrar na fila já no topo do ranking. É um ato vinculado: a norma manda, sem
+  juízo discricionário (em contraste com o Impacto institucional, que é
+  discricionário).
 - **Filtro 0+0 (Passo 5)** — nota 0 em impacto **e** em ganho encerra a
   demanda como conveniência estritamente local.
 
 ## Como usar
 
-Não há servidor nem build. **Abra o `index.html` no navegador** (duplo clique
-ou arraste para uma janela do Chrome, Edge ou Firefox). Os arquivos
-`index.html`, `app.js`, `regua.js`, `tooltips.js` e `styles.css` precisam
-ficar na mesma pasta.
-
-> Por que sem servidor? O protótipo é todo vanilla (HTML + CSS + JS, sem
-> dependências e sem build) para ser embarcado no ParticiPEN com o menor
-> atrito possível. A régua é carregada como `regua.js` (e não `regua.json` +
-> `fetch`) justamente porque `fetch`/`import` são bloqueados por CORS quando
-> se abre o arquivo direto (`file://`).
+A calculadora foi montada em https://pedrohpms.github.io/matriz-sei/ para testes, com os arquivos mais atuais do projeto. Ela é navegável passo a passo, conforme detalhado abaixo.
 
 No Passo 1 você pode:
 
@@ -84,16 +75,16 @@ O **Baixar JSON** produz um arquivo `memoria-{slug-do-título}-{timestamp}.json`
 | `origemDosDados` | `"tópico Discourse"`, `"preenchimento manual"` ou `"tópico Discourse + ajuste manual"`. |
 | `urlTopico` | URL do tópico de origem, ou `null`. |
 | `camposAjustadosManualmente` | Rótulos dos campos editados após carregar de um tópico. |
-| `pisoAcionado` | `true` quando o piso obrigatório foi acionado (score fixo de 20). |
-| `pisoJustificativa` | Gatilho de piso que enquadrou a demanda: `"obrigacaoLegal"`, `"determinacaoControle"`, `"seguranca"`, `"sustentacao"`, `"continuidade"` (ou `null`). |
+| `pisoAcionado` | `true` quando o ato vinculado foi acionado (score fixo de 20). |
+| `pisoJustificativa` | Gatilho do ato vinculado que enquadrou a demanda: `"obrigacaoLegal"`, `"determinacaoControle"`, `"seguranca"`, `"sustentacao"`, `"continuidade"` (ou `null`). |
 | `desfecho` | `{ codigo, rotulo, mensagem }` — `normal`, `piso` ou `conveniencia-local`. |
 | `identificacao` | `titulo`, `descricao`, `linkPublico`, `natureza {valor,rotulo}`, `trilha`, `camadaProposta {valor,rotulo}`, `dependencias`, `evidencia`. |
 | `triagem` | `pisoAcionado` e `gatilhos[]` (`chave`, `rotulo`, `marcado`). |
 | `curadoria` | `camadaValidada {valor,rotulo}` e `tetoComplexidade`. |
-| `criterios[]` | Por critério: `chave`, `rotulo`, `invertido`, `nota`, `descritor`, `observacao`. Sob piso, `nota`/`descritor` ficam `null` (sem pontuação). |
+| `criterios[]` | Por critério: `chave`, `rotulo`, `invertido`, `nota`, `descritor`, `observacao`. Sob ato vinculado, `nota`/`descritor` ficam `null` (sem pontuação). |
 | `filtros` | `pisoObrigatorio {acionado,passo,gatilhos}` e `convenienciaLocal {acionado,passo}`. |
 | `overrides[]` | Overrides de teto: `criterio`, `rotulo`, `nota`, `teto`, `camada`, `justificativa`. |
-| `score` | `{ total, maximo: 20, texto }`. Sob piso, `total` é `20`. |
+| `score` | `{ total, maximo: 20, texto }`. Sob ato vinculado, `total` é `20`. |
 
 Esse mesmo JSON pode ser recarregado pela UI ("Carregar exemplo ou memória
 salva"), reidratando o fluxo inteiro (`aplicarMemoria`).
@@ -118,7 +109,7 @@ rastrear sob qual régua cada avaliação foi feita.
 
 Vários campos têm um ícone **ⓘ** ao lado que abre um *popover* discreto com
 contexto: as opções de **Natureza** (Passo 1), os campos **Dependências** e
-**Evidência** (Passo 1), as cinco opções de **piso obrigatório** (Passo 2) e
+**Evidência** (Passo 1), as cinco opções de **ato vinculado** (Passo 2) e
 as cinco **camadas** (Passo 3). O Passo 4 (critérios) não tem tooltip — a régua
 já carrega o contexto. O tooltip abre por *hover*, foco via Tab e *tap* (mobile),
 e fecha com ESC ou clique fora; o leitor de tela lê o conteúdo via
@@ -137,7 +128,7 @@ Ao criar novos tooltips (quando a régua evoluir):
 
 - Cada tooltip tem entre uma e três frases.
 - pt-BR, sem jargão técnico desnecessário.
-- Opção de piso: incluir 1–2 exemplos concretos para ancorar.
+- Opção de ato vinculado: incluir 1–2 exemplos concretos para ancorar.
 - Camada: incluir o teto de complexidade que ela estabelece.
 - Não duplicar o que está no descritor da nota — acrescentar contexto,
   exemplo ou contraste.
@@ -154,27 +145,39 @@ nova chamada de rede).
 > acesso aos dados do tópico será direto pela API interna do Discourse. Neste
 > protótipo standalone, simulamos via `fetch` à API pública.
 
-### Esquema canônico do Topic Template
+### Estrutura do Form Template do ParticiPEN
 
-O parser assume este esquema — o mesmo deve ser usado ao configurar o
-*user-form* / Topic Template no Discourse. A extração é tolerante
-(*case-insensitive*, aceita `**negrito**`/`*itálico*`/espaços, ignora linhas
-vazias). Referência completa e exemplo:
+O parser reconhece o formato do **Form Template** do Discourse hoje em produção
+no ParticiPEN: o corpo do post vem em **cabeçalhos H3** (`### Pergunta`) com o
+texto literal de cada pergunta, e a resposta na(s) linha(s) seguinte(s). A
+correspondência do cabeçalho é *case-insensitive* e tolerante a espaços.
+Referência completa e exemplo:
 [`exemplos/topico-discourse-exemplo.md`](exemplos/topico-discourse-exemplo.md).
 
-| Origem no tópico | Campo |
+| Cabeçalho no corpo | Campo |
 |---|---|
-| Título do tópico | Título |
-| Primeiro parágrafo do 1º post | Descrição curta |
-| Linha `Natureza:` | Natureza (`problema` / `prática`) |
-| Linha `Trilha:` | Trilha (Melhoria / Evolutiva / Normativa) |
-| Linha `Camada proposta:` | Camada (uso local / grupo / vitrine / módulo PEN / core SEI) |
-| Linha `Dependências:` | Dependências |
-| Linhas `Evidência:` / `Métrica:` | Evidência |
+| `### Título da demanda` | Título (texto livre) |
+| `### O que você está trazendo?` | Natureza (traduzida) |
+| `### O que você gostaria que mudasse?` | Trilha (traduzida) |
+| `### Descreva a demanda apresentada` | Descrição (texto livre) |
+| `### Quem se beneficia da sua demanda?` | Camada proposta (traduzida) |
+| `### Evidências` | Evidência (texto livre) |
+| `### Anexos` | não importado (ver no tópico original) |
 
-Campos ausentes ficam em branco para preenchimento manual; URL inválida ou
-*fetch* com falha mostram um aviso e o fluxo manual continua (**nunca
-bloqueia**). A procedência (origem, URL, campos ajustados) entra na memória.
+As respostas de múltipla escolha vêm em **linguagem natural** e são traduzidas
+para os valores canônicos. Por exemplo: "Um problema a resolver" → `problema`;
+"Quero acrescentar uma funcionalidade que ainda não existe no SEI" →
+`Evolutiva`; "Praticamente todos os órgãos da Administração Pública Federal" →
+`Módulo PEN`. A tabela completa de tradução está em
+[`exemplos/topico-discourse-exemplo.md`](exemplos/topico-discourse-exemplo.md)
+(e nas constantes `TRAD_*` de `app.js`).
+
+Falha graceful: cabeçalho ausente ou resposta não reconhecida deixam o campo em
+branco com aviso discreto; um corpo sem cabeçalhos reconhecíveis exibe "este
+tópico não está no formato esperado pelo Form Template"; URL inválida ou *fetch*
+com falha mostram um aviso. Em todos os casos o fluxo manual continua (**nunca
+bloqueia**), e a procedência (origem, URL, campos ajustados) entra na memória.
+Dependências saiu do Form Template — a GPSEI coleta na curadoria.
 
 > **Trilha Corretiva.** A trilha Corretiva existe no modelo de governança,
 > mas é tratada via Central de Atendimento, **fora desta calculadora**. Por
