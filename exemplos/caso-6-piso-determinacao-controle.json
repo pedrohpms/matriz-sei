@@ -1,5 +1,5 @@
 {
-  "_comentario": "Piso obrigatório (ato vinculado) acionado por DETERMINAÇÃO de órgão de controle — distinta de recomendação (que ficaria no critério Impacto institucional). pisoJustificativa='determinacaoControle', score fixo 20, critérios sem nota.",
+  "_comentario": "Ato vinculado (piso) acionado por DETERMINAÇÃO de órgão de controle — distinta de recomendação (que ficaria no critério Impacto institucional). pisoJustificativa='determinacaoControle', score fixo 20, critérios sem nota.",
   "versaoRegua": "1.2.0",
   "timestamp": "2026-06-23T10:05:00-03:00",
   "avaliador": "Equipe GPSEI",
@@ -10,8 +10,8 @@
   "pisoJustificativa": "determinacaoControle",
   "desfecho": {
     "codigo": "piso",
-    "rotulo": "Piso obrigatório (ato vinculado)",
-    "mensagem": "Demanda enquadrada como piso obrigatório (ato vinculado) — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
+    "rotulo": "Ato vinculado",
+    "mensagem": "Demanda enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
   },
   "identificacao": {
     "titulo": "Trilha de auditoria de acessos a processos sigilosos (determinação do TCU)",
