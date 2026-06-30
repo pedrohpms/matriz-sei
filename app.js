@@ -2,7 +2,7 @@
  * Calculadora da matriz de priorização do SEI
  * Fluxo de seis passos, vanilla JS, sem dependências, sem rede.
  *
- * Regras de validação (teto de complexidade, piso obrigatório, filtro 0+0)
+ * Regras de validação (teto de complexidade, ato vinculado, filtro 0+0)
  * estruturam o fluxo. Mensagens de fim-de-fluxo são informativas, não
  * bloqueantes; a única trava é o override de teto sem justificativa.
  *
@@ -69,7 +69,7 @@ const TETOS_CAMADA = {
   'core-sei': 0, // nota fixa, sem override
 };
 
-// Gatilhos do piso obrigatório (Passo 2 — Triagem).
+// Gatilhos do ato vinculado / piso (Passo 2 — Triagem).
 const GATILHOS_PISO = [
   { chave: 'obrigacaoLegal', rotulo: 'Obrigação legal', tooltip: 'piso_obrigacao_legal' },
   { chave: 'determinacaoControle', rotulo: 'Determinação de órgão de controle', tooltip: 'piso_determinacao_controle' },
@@ -501,15 +501,15 @@ function renderStepper() {
  * Sincronizações de tela
  * ------------------------------------------------------------------ */
 
-// O score fica visível no rodapé e no passo de pontuação. Sob piso
-// obrigatório a demanda recebe score fixo de 20 (prioridade absoluta).
+// O score fica visível no rodapé e no passo de pontuação. Sob ato
+// vinculado a demanda recebe score fixo de 20 (prioridade absoluta).
 function atualizarScoreVisivel() {
   const score = pisoAcionado() ? 20 : calcularScore();
   $('#score-rodape').textContent = `${score} / 20`;
   $('#score-live').textContent = `${score} / 20`;
 }
 
-// Passo 2 — aviso de piso obrigatório. Informativo: explica o score fixo de
+// Passo 2 — aviso de ato vinculado. Informativo: explica o score fixo de
 // 20; o avaliador pode desmarcar para avaliar a demanda pela matriz.
 function atualizarAvisoTriagem() {
   const el = $('#triagem-aviso');
@@ -521,8 +521,8 @@ function atualizarAvisoTriagem() {
   el.hidden = false;
   el.className = 'aviso alerta';
   el.innerHTML =
-    '<strong>Piso obrigatório (ato vinculado) acionado.</strong> Demanda '
-    + 'enquadrada como piso obrigatório — score fixo de 20 (prioridade absoluta). '
+    '<strong>Ato vinculado acionado.</strong> Demanda '
+    + 'enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). '
     + 'A demanda entra na fila já no topo do ranking. Gatilho(s): '
     + pisos.map((p) => p.rotulo).join(', ') + '. Desmarque para avaliar pela matriz.';
 }
@@ -619,7 +619,7 @@ function atualizarDesfechoMemoria() {
     case 'piso':
       el.className = 'aviso alerta';
       el.innerHTML =
-        '<strong>Enquadrada por piso obrigatório (ato vinculado).</strong> Score '
+        '<strong>Enquadrada por ato vinculado.</strong> Score '
         + 'fixo de 20/20 (prioridade absoluta) — a demanda entra na fila já no topo '
         + 'do ranking. '
         + '<button type="button" class="link" id="retomar-triagem">Voltar à triagem</button>';
@@ -684,7 +684,8 @@ function atualizarPainelFiltros() {
  * ------------------------------------------------------------------ */
 
 // Campos do Passo 1 que podem vir do tópico (para snapshot/ajustes).
-const CAMPOS_TOPICO = ['titulo', 'descricao', 'natureza', 'trilha', 'camada', 'dependencias', 'evidencia'];
+// Dependências saiu do Form Template do ParticiPEN — a GPSEI coleta na curadoria.
+const CAMPOS_TOPICO = ['titulo', 'descricao', 'natureza', 'trilha', 'camada', 'evidencia'];
 
 const ROTULOS_CAMPO = {
   titulo: 'Título',
@@ -696,13 +697,38 @@ const ROTULOS_CAMPO = {
   evidencia: 'Evidência',
 };
 
-// Rótulos do Topic Template (esquema canônico). Tolerantes: case-insensitive,
-// aceitam marcação leve (**negrito**, *itálico*, #, >, marcadores) e espaços.
-const RX_NATUREZA = /^[\s*_>#·•-]*natureza\s*:\s*(.+)$/i;
-const RX_TRILHA = /^[\s*_>#·•-]*trilha\s*:\s*(.+)$/i;
-const RX_CAMADA = /^[\s*_>#·•-]*camada\s+proposta\s*:\s*(.+)$/i;
-const RX_DEPS = /^[\s*_>#·•-]*depend[êe]ncias\s*:\s*(.+)$/i;
-const RX_EVID = /^[\s*_>#·•-]*(?:evid[êe]ncia|m[ée]trica)\s*:\s*(.+)$/i;
+// Form Template do ParticiPEN (Discourse): o corpo do post vem em cabeçalhos
+// (### Pergunta) com o texto literal de cada pergunta, e a resposta na(s)
+// linha(s) seguinte(s). Mapeia cabeçalho → campo; `tipo` indica a tradução.
+const PERGUNTAS_TEMPLATE = [
+  { pergunta: 'Título da demanda', campo: 'titulo', tipo: 'texto' },
+  { pergunta: 'O que você está trazendo?', campo: 'natureza', tipo: 'natureza' },
+  { pergunta: 'O que você gostaria que mudasse?', campo: 'trilha', tipo: 'trilha' },
+  { pergunta: 'Descreva a demanda apresentada', campo: 'descricao', tipo: 'texto' },
+  { pergunta: 'Quem se beneficia da sua demanda?', campo: 'camada', tipo: 'camada' },
+  { pergunta: 'Evidências', campo: 'evidencia', tipo: 'texto' },
+  { pergunta: 'Anexos', campo: 'anexos', tipo: 'ignorar' },
+];
+
+// Tradução das respostas em linguagem natural → valor canônico da calculadora.
+// A comparação é normalizada (sem acento, minúsculas, espaços colapsados), então
+// as chaves podem ser escritas aqui na forma natural exibida no Form Template.
+const TRAD_NATUREZA = {
+  'Um problema a resolver': 'problema',
+  'Uma prática em uso, a difundir': 'pratica',
+};
+const TRAD_TRILHA = {
+  'Quero melhorar algo que já existe, mas pode ficar melhor': 'Melhoria',
+  'Quero acrescentar uma funcionalidade que ainda não existe no SEI': 'Evolutiva',
+  'Quero mudar uma regra, um padrão ou uma orientação de como o SEI deve ser usado': 'Normativa',
+};
+const TRAD_CAMADA = {
+  'Só o meu órgão, nas rotinas de trabalho daqui': 'uso-local',
+  'Alguns poucos órgãos que vivem contexto parecido com o meu': 'grupo',
+  'Muitos órgãos que usam o SEI': 'vitrine',
+  'Praticamente todos os órgãos da Administração Pública Federal': 'modulo-pen',
+  'Isso deveria ser parte do SEI': 'core-sei',
+};
 
 // Extrai {baseUrl, slug, topicId} de uma URL de tópico Discourse.
 function parseDiscourseUrl(url) {
@@ -718,93 +744,88 @@ function parseDiscourseUrl(url) {
   return { baseUrl: u.origin, slug: m[1] || '', topicId: m[2] };
 }
 
-// Converte o HTML "cooked" do post em { primeiroParagrafo, linhas }.
-function htmlParaConteudo(html) {
-  const doc = new DOMParser().parseFromString(html || '', 'text/html');
-  const primeiroP = doc.querySelector('p');
-  const primeiroParagrafo = primeiroP
-    ? primeiroP.textContent.replace(/\s+/g, ' ').trim()
-    : '';
-  doc.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
-  doc.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6, blockquote, tr')
-    .forEach((el) => el.append('\n'));
-  const linhas = doc.body.textContent.split('\n').map((l) => l.trim()).filter(Boolean);
-  return { primeiroParagrafo, linhas };
+// Normaliza para comparação tolerante: sem acento, minúsculas, espaços colapsados.
+function normalizaTexto(s) {
+  return semAcento(String(s || '')).toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-function pareceRotulo(texto) {
-  return [RX_NATUREZA, RX_TRILHA, RX_CAMADA, RX_DEPS, RX_EVID].some((rx) => rx.test(texto));
-}
-
-// Limpa marcação leve (asteriscos/underscores) ao redor do valor.
-function limparValorRotulo(v) {
-  return (v || '').trim().replace(/^[*_\s]+/, '').replace(/[*_\s]+$/, '').trim();
-}
-
-function valorDoRotulo(linhas, rx) {
-  for (const l of linhas) {
-    const m = l.match(rx);
-    if (m) return limparValorRotulo(m[m.length - 1]);
+// Procura, numa tabela de tradução, o valor canônico para uma resposta natural.
+function traduzirResposta(tabela, resposta) {
+  const alvo = normalizaTexto(resposta);
+  for (const [chaveNatural, valor] of Object.entries(tabela)) {
+    if (normalizaTexto(chaveNatural) === alvo) return valor;
   }
   return '';
 }
 
-function normalizarNatureza(v) {
-  const s = semAcento(v).toLowerCase();
-  if (s.includes('problema')) return 'problema';
-  if (s.includes('pratica')) return 'pratica';
-  return '';
+// Quebra o HTML "cooked" em seções por cabeçalho: [{ titulo, conteudo }].
+// O título é o texto do H1–H6; o conteúdo é o texto dos elementos seguintes
+// até o próximo cabeçalho. Texto antes do primeiro cabeçalho é ignorado.
+function extrairSecoesPorCabecalho(html) {
+  const doc = new DOMParser().parseFromString(html || '', 'text/html');
+  const ehCabecalho = (el) => /^H[1-6]$/.test(el.tagName);
+  const secoes = [];
+  let atual = null;
+  Array.from(doc.body.children).forEach((el) => {
+    if (ehCabecalho(el)) {
+      atual = { titulo: el.textContent.replace(/\s+/g, ' ').trim(), linhas: [] };
+      secoes.push(atual);
+    } else if (atual) {
+      const t = el.textContent.trim();
+      if (t) atual.linhas.push(t);
+    }
+  });
+  return secoes.map((s) => ({ titulo: s.titulo, conteudo: s.linhas.join('\n').trim() }));
 }
 
-function normalizarTrilha(v) {
-  const s = semAcento(v).toLowerCase().trim();
-  const exato = TRILHAS.find((t) => semAcento(t).toLowerCase() === s);
-  if (exato) return exato;
-  const parcial = TRILHAS.find((t) => s.includes(semAcento(t).toLowerCase()));
-  return parcial || '';
-}
-
-function normalizarCamada(v) {
-  const s = semAcento(v).toLowerCase().trim();
-  const porRotulo = CAMADAS.find((c) => semAcento(c.rotulo).toLowerCase() === s)
-    || CAMADAS.find((c) => s.includes(semAcento(c.rotulo).toLowerCase()))
-    || CAMADAS.find((c) => c.valor === s);
-  return porRotulo ? porRotulo.valor : '';
-}
-
-// Função pura: do JSON do tópico para os campos do Passo 1.
+// Função pura: do JSON do tópico (Form Template do ParticiPEN) para os campos
+// do Passo 1. Cabeçalho H3 com a pergunta literal → campo; respostas de
+// múltipla escolha são traduzidas para o valor canônico.
 function extrairCamposDoTopico(json) {
   const r = {
-    titulo: '', descricao: '', natureza: '', trilha: '',
-    camada: '', dependencias: '', evidencia: '', encontrados: [],
+    titulo: '', descricao: '', natureza: '', trilha: '', camada: '', evidencia: '',
+    encontrados: [], naoReconhecidos: [], ausentes: [], temAnexos: false,
+    semCabecalhos: false,
   };
-  if (!json) return r;
-
-  if (json.title) { r.titulo = String(json.title).trim(); if (r.titulo) r.encontrados.push('titulo'); }
+  if (!json) { r.semCabecalhos = true; return r; }
 
   const post = json.post_stream && json.post_stream.posts && json.post_stream.posts[0];
-  const { primeiroParagrafo, linhas } = htmlParaConteudo(post ? post.cooked : '');
+  const secoes = extrairSecoesPorCabecalho(post ? post.cooked : '');
+  if (!secoes.length) { r.semCabecalhos = true; return r; }
 
-  if (primeiroParagrafo && !pareceRotulo(primeiroParagrafo)) {
-    r.descricao = primeiroParagrafo;
-    r.encontrados.push('descricao');
+  const tabelaDe = (tipo) => (tipo === 'natureza' ? TRAD_NATUREZA
+    : tipo === 'trilha' ? TRAD_TRILHA
+      : tipo === 'camada' ? TRAD_CAMADA : null);
+
+  PERGUNTAS_TEMPLATE.forEach((q) => {
+    const alvo = normalizaTexto(q.pergunta);
+    const sec = secoes.find((s) => normalizaTexto(s.titulo).includes(alvo));
+
+    if (q.tipo === 'ignorar') { // Anexos: não importar, só sinalizar
+      if (sec && sec.conteudo) r.temAnexos = true;
+      return;
+    }
+    if (!sec || !sec.conteudo.trim()) { r.ausentes.push(q.campo); return; }
+
+    const resposta = sec.conteudo.trim();
+    if (q.tipo === 'texto') {
+      r[q.campo] = resposta;
+      r.encontrados.push(q.campo);
+    } else {
+      const valor = traduzirResposta(tabelaDe(q.tipo), resposta);
+      if (valor) { r[q.campo] = valor; r.encontrados.push(q.campo); }
+      else r.naoReconhecidos.push(q.campo);
+    }
+  });
+
+  // Fallback do título: se o cabeçalho não trouxe, usa o título do tópico.
+  if (!r.titulo && json.title) {
+    r.titulo = String(json.title).trim();
+    if (r.titulo) {
+      r.encontrados.push('titulo');
+      r.ausentes = r.ausentes.filter((c) => c !== 'titulo');
+    }
   }
-
-  const nat = normalizarNatureza(valorDoRotulo(linhas, RX_NATUREZA));
-  if (nat) { r.natureza = nat; r.encontrados.push('natureza'); }
-
-  const tri = normalizarTrilha(valorDoRotulo(linhas, RX_TRILHA));
-  if (tri) { r.trilha = tri; r.encontrados.push('trilha'); }
-
-  const cam = normalizarCamada(valorDoRotulo(linhas, RX_CAMADA));
-  if (cam) { r.camada = cam; r.encontrados.push('camada'); }
-
-  const dep = valorDoRotulo(linhas, RX_DEPS);
-  if (dep) { r.dependencias = dep; r.encontrados.push('dependencias'); }
-
-  const evids = linhas.map((l) => l.match(RX_EVID)).filter(Boolean)
-    .map((m) => limparValorRotulo(m[m.length - 1]));
-  if (evids.length) { r.evidencia = evids.join('\n'); r.encontrados.push('evidencia'); }
 
   return r;
 }
@@ -849,7 +870,6 @@ function popularIdentificacao(campos) {
   aplicar('natureza', '#id-natureza');
   aplicar('trilha', '#id-trilha');
   aplicar('camada', '#id-camada');
-  aplicar('dependencias', '#id-dependencias');
   aplicar('evidencia', '#id-evidencia');
   // Sincroniza a curadoria com a camada carregada, se ainda não tocada.
   if (campos.camada && !estado.curadoria.camadaValidada) {
@@ -863,10 +883,13 @@ function aplicarTopico(json, url) {
   estado.origem.url = url;
 
   const campos = extrairCamposDoTopico(json);
-  if (!campos.encontrados.length) {
+
+  // Body fora do formato do Form Template (sem cabeçalhos reconhecíveis).
+  if (campos.semCabecalhos) {
     mostrarAvisoTopico('erro',
-      'Não foi possível extrair os campos do tópico — preencha manualmente abaixo.');
-    $('#btn-reextrair').hidden = false; // ainda dá para re-tentar do cache
+      'Este tópico não está no formato esperado pelo Form Template do '
+      + 'ParticiPEN. Preencha os campos manualmente.');
+    $('#btn-reextrair').hidden = false;
     return;
   }
 
@@ -877,12 +900,26 @@ function aplicarTopico(json, url) {
   $('#btn-reextrair').hidden = false;
   atualizarScoreVisivel();
 
-  const faltando = CAMPOS_TOPICO.filter((c) => !campos.encontrados.includes(c));
-  const aviso = faltando.length
-    ? 'Campos carregados do tópico. Não encontrados (preencha manualmente): '
-      + faltando.map((c) => ROTULOS_CAMPO[c]).join(', ') + '.'
-    : 'Todos os campos foram carregados do tópico.';
-  mostrarAvisoTopico('ok', aviso);
+  // Avisos de falha graceful (campos ausentes / respostas não reconhecidas).
+  const partes = [];
+  if (campos.ausentes.length) {
+    partes.push('Não detectados (preencha manualmente): '
+      + campos.ausentes.map((c) => ROTULOS_CAMPO[c] || c).join(', ') + '.');
+  }
+  if (campos.naoReconhecidos.length) {
+    partes.push('Respostas não reconhecidas (preencha manualmente): '
+      + campos.naoReconhecidos.map((c) => ROTULOS_CAMPO[c] || c).join(', ') + '.');
+  }
+  if (campos.temAnexos) partes.push('Há anexos — ver no tópico original.');
+
+  if (!partes.length) {
+    mostrarAvisoTopico('ok', 'Campos carregados do tópico (Form Template do ParticiPEN).');
+  } else {
+    mostrarAvisoTopico(campos.encontrados.length ? 'neutro' : 'erro',
+      (campos.encontrados.length
+        ? 'Campos carregados do tópico. '
+        : 'Pouca coisa pôde ser extraída. ') + partes.join(' '));
+  }
 }
 
 // Handler do botão "Carregar": valida URL, busca o JSON e aplica.
@@ -1051,14 +1088,14 @@ function carregarExemploArquivo(file) {
 let memoriaAtual = null; // último objeto montado, reusado por copiar/baixar
 
 function rotuloDesfecho(codigo) {
-  if (codigo === 'piso') return 'Piso obrigatório (ato vinculado)';
+  if (codigo === 'piso') return 'Ato vinculado';
   if (codigo === 'conveniencia-local') return 'Conveniência estritamente local';
   return 'Avaliação completa pela matriz';
 }
 
 function mensagemDesfecho(codigo) {
   if (codigo === 'piso') {
-    return 'Demanda enquadrada como piso obrigatório (ato vinculado) — score fixo '
+    return 'Demanda enquadrada como ato vinculado — score fixo '
       + 'de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking.';
   }
   if (codigo === 'conveniencia-local') {
@@ -1202,7 +1239,7 @@ function memoriaParaMarkdown(m) {
   const acionados = [];
   if (m.filtros.pisoObrigatorio.acionado) {
     acionados.push(
-      `Piso obrigatório (Passo ${m.filtros.pisoObrigatorio.passo}): `
+      `Ato vinculado (Passo ${m.filtros.pisoObrigatorio.passo}): `
       + m.filtros.pisoObrigatorio.gatilhos.join(', '),
     );
   }
@@ -1233,7 +1270,7 @@ function memoriaParaMarkdown(m) {
     ? m.camposAjustadosManualmente.join(', ')
     : '(nenhum)';
 
-  // Sob piso obrigatório não há pontuação: a seção de critérios dá lugar a um
+  // Sob ato vinculado não há pontuação: a seção de critérios dá lugar a um
   // bloco de enquadramento com o score fixo.
   const rodapeMeta =
     `- **Timestamp (ISO 8601):** ${m.timestamp}\n`
@@ -1243,7 +1280,7 @@ function memoriaParaMarkdown(m) {
   let corpoFinal;
   if (m.pisoAcionado) {
     const gatilhosAcionados = m.triagem.gatilhos.filter((g) => g.marcado).map((g) => g.rotulo);
-    corpoFinal = `## Enquadramento por piso obrigatório
+    corpoFinal = `## Enquadramento por ato vinculado
 - **Gatilho(s) acionado(s):** ${gatilhosAcionados.join(', ') || '—'}
 - **Score:** ${m.score.texto} (fixo, prioridade absoluta)
 ${rodapeMeta}`;
@@ -1277,9 +1314,9 @@ ${rodapeMeta}`;
 - **Evidência:** ${ni(m.identificacao.evidencia)}
 
 ## Triagem e curadoria
-- **Gatilhos de piso:**
+- **Gatilhos do ato vinculado:**
 ${gatilhosLinhas}
-- **Piso obrigatório:** ${pisoLinha}
+- **Ato vinculado:** ${pisoLinha}
 - **Camada validada:** ${m.curadoria.camadaValidada.rotulo}
 - **Teto de complexidade pela camada:** ${tetoTxt}
 
@@ -1490,7 +1527,7 @@ function avancar() {
     return;
   }
 
-  // Passo 2 — piso obrigatório pula a pontuação e vai direto à memória
+  // Passo 2 — ato vinculado pula a pontuação e vai direto à memória
   // (score fixo de 20, prioridade absoluta).
   if (atual === 1 && pisoAcionado()) {
     mostrarPasso(5);
