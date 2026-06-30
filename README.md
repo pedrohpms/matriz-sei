@@ -50,7 +50,7 @@ No Passo 1 você pode:
 - **Carregar do ParticiPEN** colando a URL de um tópico (ver
   [Integração](#integração-com-o-participen));
 - **Carregar exemplo ou memória salva (JSON)** — selecione um arquivo de
-  `exemplos/` (ou qualquer memória que você exportou) e o fluxo é reidratado.
+  `exemplos/` (ou qualquer memória que você exportou) e o fluxo é atualizado.
 
 Ao final (Passo 6), **Copiar markdown** (para colar no fórum) ou **Baixar
 JSON** (para arquivar/processar).
@@ -87,7 +87,7 @@ O **Baixar JSON** produz um arquivo `memoria-{slug-do-título}-{timestamp}.json`
 | `score` | `{ total, maximo: 20, texto }`. Sob ato vinculado, `total` é `20`. |
 
 Esse mesmo JSON pode ser recarregado pela UI ("Carregar exemplo ou memória
-salva"), reidratando o fluxo inteiro (`aplicarMemoria`).
+salva"), atualizando o fluxo inteiro (`aplicarMemoria`).
 
 ## Régua canônica
 
