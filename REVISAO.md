@@ -14,12 +14,15 @@ conscientes e decisões que merecem um segundo olhar.
    interna) ou servida na mesma origem. **Não é bug — é a natureza da fase de
    protótipo —, mas é a primeira coisa que confunde quem testa.**
 
-2. **Descrição = "primeiro parágrafo" captura saudações.** Em tópicos
-   orgânicos (não no Topic Template canônico), o primeiro `<p>` costuma ser
-   "Prezados," e é isso que entra no campo Descrição. Verificado com um tópico
-   real do ParticiPEN. Para o template canônico, que começa pela descrição,
-   funciona. Uma heurística de "pular linha muito curta / saudação" resolveria,
-   mas foi deixada de fora para não desviar da regra canônica especificada.
+2. **Parser depende do texto literal das perguntas (Patch 4).** O parser do
+   Form Template (`extrairCamposDoTopico`, `PERGUNTAS_TEMPLATE`) casa pelos
+   cabeçalhos H3 com a pergunta literal e traduz as respostas via tabelas
+   `TRAD_*`. Se o ParticiPEN **reescrever uma pergunta ou uma opção de resposta**,
+   o casamento quebra silenciosamente (campo vira "ausente"/"não reconhecido" e
+   cai no manual). É o acoplamento esperado de um tradutor, mas é o primeiro
+   lugar a olhar se a extração parar de funcionar. A comparação é tolerante a
+   acento/caixa/espaços, não a mudança de redação. (Só o formato do Form
+   Template é suportado; tópicos fora dele caem no preenchimento manual.)
 
 3. **Clipboard em `file://`.** `navigator.clipboard.writeText` pode ser negado
    fora de contexto seguro (há `execCommand('copy')` como *fallback*). Em
@@ -42,8 +45,8 @@ conscientes e decisões que merecem um segundo olhar.
    arquivo continuará o antigo. É o comportamento esperado de uma memória
    (instantâneo), só convém ter em mente ao revisar exemplos.
 
-6. **Stepper no salto do piso.** Quando o piso obrigatório salta da triagem
-   direto para a memória, o stepper marca os passos 3–5 como "concluídos"
+6. **Stepper no salto do ato vinculado.** Quando o ato vinculado (piso) salta
+   da triagem direto para a memória, o stepper marca os passos 3–5 como "concluídos"
    mesmo sem terem sido visitados. É impreciso visualmente (a navegação em si
    está correta). Edge cosmético.
 
@@ -52,8 +55,8 @@ conscientes e decisões que merecem um segundo olhar.
    navegadores atuais, mas em navegadores antigos esses realces somem (o foco
    nativo do `<input>` permanece). Dependência implícita a registrar.
 
-8. **`piso` (ato vinculado) ignora notas e fixa o score em 20.** Sob piso
-   obrigatório a demanda recebe score fixo de **20** (prioridade absoluta) e os
+8. **`piso` (ato vinculado) ignora notas e fixa o score em 20.** Sob ato
+   vinculado a demanda recebe score fixo de **20** (prioridade absoluta) e os
    cinco critérios não são pontuados. Se o avaliador tiver pontuado antes de
    marcar o gatilho, essas notas não são preservadas. `pisoJustificativa`
    registra só o **primeiro** gatilho marcado (entre os cinco:
