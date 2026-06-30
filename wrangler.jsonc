@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "matriz-sei",
+  "name": "calculadora-sei",
   "compatibility_date": "2026-06-30",
   "observability": {
     "enabled": true
