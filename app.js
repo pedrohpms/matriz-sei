@@ -32,7 +32,7 @@
  * ------------------------------------------------------------------ */
 
 const CONFIG = {
-  discourseBaseUrl: 'https://SEU-PARTICIPEN.exemplo.gov.br',
+  discourseBaseUrl: 'https://participen.processoeletronico.gov.br',
 };
 
 /* ------------------------------------------------------------------ *
