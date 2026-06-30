@@ -54,11 +54,11 @@ window.REGUA = {
           + 'marcante - não some várias; atribua a nota pela que pesar mais forte. '
           + 'Em seguida, escolha o nível na escala abaixo.',
         observacoes: [
-          'Observação 1: aqui não entra exigência legal  - Obrigação legal é piso obrigatório '
+          'Observação 1: aqui não entra exigência legal - Obrigação legal é ato '
           + 'vinculado, tratada na triagem. Se for o caso, volte à etapa de '
           + 'triagem e assinale a opção correspondente.',
           'Observação 2: determinação de órgão de controle '
-          + 'também é piso vinculado e não entra aqui. Se a recomendação já se tornou determinação, '
+          + 'também é ato vinculado e não entra aqui. Se a recomendação já se tornou determinação, '
           + 'volte à triagem e assinale.',
         ],
       },
