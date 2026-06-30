@@ -1,5 +1,5 @@
 {
-  "_comentario": "Estressa o piso obrigatório: uma falha de segurança aciona o gatilho no Passo 2, a demanda recebe score fixo de 20 (prioridade absoluta), pula a pontuação dos cinco critérios e vai direto à memória. Note pisoAcionado=true, pisoJustificativa='seguranca' e criterios sem nota.",
+  "_comentario": "Estressa o ato vinculado (piso): uma falha de segurança aciona o gatilho no Passo 2, a demanda recebe score fixo de 20 (prioridade absoluta), pula a pontuação dos cinco critérios e vai direto à memória. Note pisoAcionado=true, pisoJustificativa='seguranca' e criterios sem nota.",
   "versaoRegua": "1.2.0",
   "timestamp": "2026-06-22T09:10:00-03:00",
   "avaliador": "Equipe GPSEI",
@@ -10,8 +10,8 @@
   "pisoJustificativa": "seguranca",
   "desfecho": {
     "codigo": "piso",
-    "rotulo": "Piso obrigatório (ato vinculado)",
-    "mensagem": "Demanda enquadrada como piso obrigatório (ato vinculado) — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
+    "rotulo": "Ato vinculado",
+    "mensagem": "Demanda enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
   },
   "identificacao": {
     "titulo": "Administrador consegue gerir usuários de outro órgão (isolamento quebrado)",
