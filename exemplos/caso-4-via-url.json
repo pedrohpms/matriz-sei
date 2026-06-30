@@ -1,10 +1,10 @@
 {
-  "_comentario": "Memória gerada a partir de um tópico do ParticiPEN (ver topico-discourse-exemplo.md). origemDosDados = 'tópico Discourse'. A identificação foi puxada do tópico; as notas foram dadas pelo avaliador. Camada grupo => teto de complexidade 3 (nota 3 fica no teto, sem override). Score 13/20.",
+  "_comentario": "Memória gerada a partir de um tópico no formato Form Template do ParticiPEN (ver topico-discourse-exemplo.md). origemDosDados='tópico Discourse'. As respostas em linguagem natural foram traduzidas para os valores canônicos: 'Um problema a resolver'→problema; 'Quero acrescentar uma funcionalidade...'→Evolutiva; 'Praticamente todos os órgãos da APF'→Módulo PEN. As notas foram dadas pela GPSEI. Camada Módulo PEN => teto de complexidade 1. Score 13/20.",
   "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-21T11:30:00-03:00",
+  "timestamp": "2026-06-25T11:00:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "tópico Discourse",
-  "urlTopico": "https://participen.processoeletronico.gov.br/t/padronizar-numeracao-de-processos-no-grupo-de-cet/999",
+  "urlTopico": "https://participen.processoeletronico.gov.br/t/sincronizacao-hierarquia-siorg/4242",
   "camposAjustadosManualmente": [],
   "pisoAcionado": false,
   "pisoJustificativa": null,
@@ -14,14 +14,14 @@
     "mensagem": "Avaliação completa pela matriz."
   },
   "identificacao": {
-    "titulo": "Padronizar a numeração de processos no grupo de C&T",
-    "descricao": "Unificar o padrão de numeração de processos administrativos entre os órgãos do ecossistema de Ciência e Tecnologia, hoje divergente entre as instituições.",
+    "titulo": "Sincronização automática da hierarquia de unidades com SIORG",
+    "descricao": "A manutenção manual da hierarquia de unidades gera divergências recorrentes entre o SEI e o SIORG, com retrabalho e inconsistências em relatórios.",
     "linkPublico": "",
     "natureza": { "valor": "problema", "rotulo": "Problema a resolver" },
     "trilha": "Evolutiva",
-    "camadaProposta": { "valor": "grupo", "rotulo": "Grupo" },
-    "dependencias": "Acordo entre os órgãos do grupo e ajuste de configuração compartilhada.",
-    "evidencia": "Divergência relatada por 4 órgãos do grupo.\nReduz retrabalho de reautuação de processos."
+    "camadaProposta": { "valor": "modulo-pen", "rotulo": "Módulo PEN" },
+    "dependencias": "",
+    "evidencia": "Atualmente, há 14 chamados/mês por divergência de hierarquia."
   },
   "triagem": {
     "pisoAcionado": false,
@@ -34,25 +34,25 @@
     ]
   },
   "curadoria": {
-    "camadaValidada": { "valor": "grupo", "rotulo": "Grupo" },
-    "tetoComplexidade": 3
+    "camadaValidada": { "valor": "modulo-pen", "rotulo": "Módulo PEN" },
+    "tetoComplexidade": 1
   },
   "criterios": [
     {
       "chave": "impacto",
       "rotulo": "Impacto institucional",
       "invertido": false,
-      "nota": 2,
-      "descritor": "Uma dimensão aparece com peso médio: normativa setorial que afeta um grupo de órgãos; diretriz formal do SEGES/MGI; recomendação não-vinculante em relatório de auditoria; visibilidade entre usuários do SEI sem repercussão externa.",
+      "nota": 3,
+      "descritor": "Uma dimensão aparece forte: programa ou compromisso formal de governo transversal; diretriz setorial muito ampla e cobrada; recomendação reiterada de órgão de controle; citação na imprensa ou exposição a usuário externo de forma sensível.",
       "observacao": ""
     },
     {
       "chave": "orgaos",
       "rotulo": "Quantidade de órgãos afetados",
       "invertido": false,
-      "nota": 2,
-      "descritor": "Um grupo temático ou subconjunto de um segmento (6 a 30 órgãos — por exemplo, agências reguladoras de infraestrutura).",
-      "observacao": "Grupo de C&T."
+      "nota": 4,
+      "descritor": "Múltiplos segmentos, ou transversal à esfera federal (>150 órgãos).",
+      "observacao": "Beneficia praticamente toda a APF."
     },
     {
       "chave": "ganho",
@@ -60,22 +60,22 @@
       "invertido": false,
       "nota": 3,
       "descritor": "Ganho alto em tarefa frequente: elimina gargalo, contorno manual ou retrabalho recorrente em atividade diária.",
-      "observacao": "Evita reautuação de processos."
+      "observacao": "Elimina a manutenção manual da hierarquia."
     },
     {
       "chave": "complexidade",
       "rotulo": "Complexidade",
       "invertido": true,
-      "nota": 3,
-      "descritor": "Baixa. Grupo ou vitrine simples; uma a duas áreas; entrega em semanas.",
+      "nota": 1,
+      "descritor": "Alta. Módulo PEN ou mudança coordenada em várias frentes; dependências relevantes; entrega em vários meses.",
       "observacao": ""
     },
     {
       "chave": "risco",
       "rotulo": "Risco",
       "invertido": true,
-      "nota": 3,
-      "descritor": "Baixo. Efeito colateral improvável; reversão simples.",
+      "nota": 2,
+      "descritor": "Médio. Regressão plausível em pontos identificáveis; mitigável com teste.",
       "observacao": ""
     }
   ],
