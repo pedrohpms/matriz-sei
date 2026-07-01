@@ -1,0 +1,10 @@
+{
+  "name": "Matriz SEI — Calculadora de Priorização",
+  "component": true,
+  "authors": "Pedro Moreira / GPSEI",
+  "theme_version": "0.1.0",
+  "license_url": "https://github.com/pedrohpms/matriz-sei/blob/main/LICENSE",
+  "learn_more": "https://github.com/pedrohpms/matriz-sei/blob/main/README.md",
+  "color_schemes": {},
+  "assets": {}
+}

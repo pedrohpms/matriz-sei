@@ -1,8 +1,44 @@
-# Calculadora da matriz de priorização do SEI
+# Matriz SEI — Calculadora de Priorização
 
-> **Estado: Iteração 7 de 7 — protótipo completo.**
+**Componente de tema (*theme component*) do Discourse** que leva a calculadora
+da matriz de priorização de demandas do SEI para dentro do **ParticiPEN**.
 
-## O que é
+Para quem é: a **GPSEI** e os administradores do ParticiPEN. O que faz: permite
+avaliar uma demanda (pontuar critérios, aplicar as regras do modelo e gerar a
+memória de cálculo) sem sair do fórum.
+
+> **Estado:** a calculadora está completa (7 iterações — ver abaixo). O
+> empacotamento como *theme component* está em andamento: esta versão (**v0.1.0**)
+> traz apenas a **estrutura mínima** do componente. Ainda não há nada visual no
+> Discourse — a incorporação da interface vem nas próximas iterações.
+
+## Instalação no Discourse
+
+No painel de administração do ParticiPEN:
+
+1. **Admin → Customize → Themes → Install → From a Git Repository**.
+2. Cole a URL deste repositório: `https://github.com/pedrohpms/matriz-sei`.
+3. Como é um *theme component*, depois de instalado ele precisa ser **adicionado
+   a um tema**: em **Themes**, abra o tema em uso e inclua este componente na
+   seção *Components*.
+
+Nesta versão o componente instala e habilita sem erros, mas ainda não exibe nada
+(estrutura mínima). É o esqueleto sobre o qual a calculadora será embarcada.
+
+## Configurações (settings)
+
+Ainda não há configurações. Elas serão definidas na **Iteração 5** (no arquivo
+`settings.yml`) — por exemplo, a URL base do ParticiPEN e onde/como a calculadora
+aparece dentro do fórum.
+
+## Modelo de governança do SEI
+
+A calculadora implementa a matriz de priorização do modelo de governança do SEI.
+Consolidado do modelo: _link a definir_ <!-- TODO: inserir a URL do consolidado do modelo de governança -->.
+
+---
+
+## O que é (a calculadora)
 
 Protótipo navegável da **matriz de priorização de demandas do SEI** (Sistema
 Eletrônico de Informações), parte de um modelo de governança para o SEI no
