@@ -1,17 +1,8 @@
 # Tooling de preview local (servidor estático PowerShell) — não faz parte do produto
 .claude/
 
-# Dependências / build (não usados nesta versão; por boa prática do ecossistema)
-node_modules/
-npm-debug.log*
-yarn-error.log*
-dist/
-*.log
-
 # Cruft de SO / editores
 .DS_Store
 Thumbs.db
 desktop.ini
 *~
-.vscode/
-.idea/
