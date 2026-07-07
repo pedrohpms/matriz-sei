@@ -1,17 +1,18 @@
 {
-  "_comentario": "Estressa o ato vinculado (piso): uma falha de segurança aciona o gatilho no Passo 2, a demanda recebe score fixo de 20 (prioridade absoluta), pula a pontuação dos cinco critérios e vai direto à memória. Note pisoAcionado=true, pisoJustificativa='seguranca' e criterios sem nota.",
-  "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-22T09:10:00-03:00",
+  "_comentario": "Estressa o ato vinculado (piso obrigatório): uma falha de segurança aciona o gatilho no Passo 2, a demanda fica FORA da matriz discricionária, pula a pontuação dos cinco critérios e vai direto à memória. Sem par valor × esforço nem quadrante — o Passo 6 mostra o card de ato vinculado no lugar da plotagem. Note pisoAcionado=true, piso_obrigatorio='seguranca' e criterios sem nota.",
+  "versaoRegua": "2.0.0",
+  "timestamp": "2026-07-07T09:10:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "preenchimento manual",
   "urlTopico": null,
   "camposAjustadosManualmente": [],
   "pisoAcionado": true,
   "pisoJustificativa": "seguranca",
+  "piso_obrigatorio": "seguranca",
   "desfecho": {
     "codigo": "piso",
     "rotulo": "Ato vinculado",
-    "mensagem": "Demanda enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
+    "mensagem": "Demanda enquadrada como ato vinculado — fora da matriz discricionária. Encaminhamento direto ao topo da fila, independentemente do par valor × esforço."
   },
   "identificacao": {
     "titulo": "Administrador consegue gerir usuários de outro órgão (isolamento quebrado)",
@@ -35,19 +36,22 @@
   },
   "curadoria": {
     "camadaValidada": { "valor": "core-sei", "rotulo": "Core SEI" },
-    "tetoComplexidade": 0
+    "pisoComplexidade": 4
   },
   "criterios": [
-    { "chave": "impacto", "rotulo": "Impacto institucional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "orgaos", "rotulo": "Quantidade de órgãos afetados", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "ganho", "rotulo": "Ganho operacional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "complexidade", "rotulo": "Complexidade", "invertido": true, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "risco", "rotulo": "Risco", "invertido": true, "nota": null, "descritor": null, "observacao": "" }
+    { "chave": "impacto", "rotulo": "Impacto institucional", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "orgaos", "rotulo": "Quantidade de órgãos afetados", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "ganho", "rotulo": "Ganho operacional", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "complexidade", "rotulo": "Complexidade", "bloco": "esforco", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "risco", "rotulo": "Risco de entrega", "bloco": "esforco", "invertido": false, "nota": null, "descritor": null, "observacao": "" }
   ],
   "filtros": {
     "pisoObrigatorio": { "acionado": true, "passo": 2, "gatilhos": ["Falha de segurança"] },
     "convenienciaLocal": { "acionado": false, "passo": 5 }
   },
   "overrides": [],
-  "score": { "total": 20, "maximo": 20, "texto": "20/20" }
+  "override_complexidade": null,
+  "valor": null,
+  "esforco": null,
+  "quadrante": null
 }

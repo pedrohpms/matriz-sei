@@ -2,13 +2,15 @@
  * Calculadora da matriz de priorização do SEI
  * Fluxo de seis passos, vanilla JS, sem dependências, sem rede.
  *
- * Regras de validação (teto de complexidade, ato vinculado, filtro 0+0)
+ * Regras de validação (piso de complexidade, ato vinculado, filtro 0+0)
  * estruturam o fluxo. Mensagens de fim-de-fluxo são informativas, não
- * bloqueantes; a única trava é o override de teto sem justificativa.
+ * bloqueantes; a única trava é o override de piso sem justificativa.
  *
- * Iteração 4 — memória de cálculo em dois formatos a partir de UM mesmo
- * objeto interno (montarMemoria): Markdown estruturado (copiar) e JSON
- * (baixar). Paridade garantida por construção — ambos derivam do objeto.
+ * A matriz discricionária produz um par independente: valor (0-12, ordena a
+ * fila) × esforço de entrega (0-8, orienta o tratamento e desempata). A
+ * memória de cálculo sai em dois formatos a partir de UM mesmo objeto interno
+ * (montarMemoria): Markdown estruturado (copiar) e JSON (baixar). Paridade
+ * garantida por construção — ambos derivam do objeto.
  *
  * A régua dos critérios vive em regua.js (dados); o fluxo só a consome.
  * A versão da régua (regua.js → REGUA.versao) entra no JSON como versaoRegua.
@@ -58,15 +60,29 @@ const CAMADAS = [
   { valor: 'core-sei', rotulo: 'Core SEI', tooltip: 'camada_core_sei' },
 ];
 
-// Teto da nota de Complexidade (escala invertida) por camada validada.
-// O teto é a nota MÁXIMA permitida sem justificativa. Core SEI fixa em 0
-// (sem override). Notas acima do teto, nas demais camadas, exigem override.
-const TETOS_CAMADA = {
-  'uso-local': 4,
-  'grupo': 3,
-  'vitrine': 3, // nota 2 cabível em vitrine exigente
-  'modulo-pen': 1,
-  'core-sei': 0, // nota fixa, sem override
+// Piso da nota de Complexidade por camada validada (escala natural: 0 = trivial,
+// 4 = altíssima). É a nota MÍNIMA plausível: nota ABAIXO do piso exige
+// justificativa (override). Core SEI trava em 4 (sem override). A calibragem vem
+// da régua (REGUA.pisosComplexidade), atribuída em init(); os valores abaixo são
+// fallback caso a régua não a traga.
+let PISOS_CAMADA = {
+  'uso-local': 1,
+  'grupo': 2,
+  'vitrine': 2,
+  'modulo-pen': 3,
+  'core-sei': 4, // trava, sem override
+};
+
+// Convenção de corte da plotagem valor × esforço (revisável; vem da régua).
+// valor >= CORTES.valor → valor alto; esforco >= CORTES.esforco → esforço alto.
+let CORTES = { valor: 6, esforco: 4 };
+
+// Quadrantes da plotagem valor × esforço, nomeados por (valor, esforço).
+const QUADRANTES = {
+  janela: { rotulo: 'Janela de oportunidade' },             // valor alto, esforço baixo
+  aposta: { rotulo: 'Aposta estratégica' },                 // valor alto, esforço alto
+  preenchimento: { rotulo: 'Preenchimento de capacidade' }, // valor baixo, esforço baixo
+  revisao: { rotulo: 'Revisão e devolutiva' },              // valor baixo, esforço alto
 };
 
 // Gatilhos do ato vinculado / piso (Passo 2 — Triagem).
@@ -132,11 +148,11 @@ const estado = {
   pontuacao: {},
   // observacoes[chave] = evidência/observação livre do critério.
   observacoes: {},
-  // Override do teto de Complexidade (Passo 4).
+  // Override do piso de Complexidade (Passo 4).
   override: {
-    ativo: false,       // nota de complexidade acima do teto da camada
+    ativo: false,       // nota de complexidade abaixo do piso da camada
     nota: null,         // nota atribuída
-    teto: null,         // teto da camada na hora do override
+    piso: null,         // piso da camada na hora do override
     justificativa: '',  // texto obrigatório enquanto ativo
   },
 };
@@ -166,10 +182,10 @@ function pisoAcionado() {
   return piosAcionados().length > 0;
 }
 
-// Teto de Complexidade pela camada validada. null se não há camada definida.
-function tetoComplexidade() {
+// Piso de Complexidade pela camada validada. null se não há camada definida.
+function pisoComplexidade() {
   const c = estado.curadoria.camadaValidada;
-  return Object.prototype.hasOwnProperty.call(TETOS_CAMADA, c) ? TETOS_CAMADA[c] : null;
+  return Object.prototype.hasOwnProperty.call(PISOS_CAMADA, c) ? PISOS_CAMADA[c] : null;
 }
 
 function camadaCore() {
@@ -181,19 +197,38 @@ function condicaoConvenienciaLocal() {
   return estado.pontuacao.impacto === 0 && estado.pontuacao.ganho === 0;
 }
 
-// Desfecho do fluxo. Piso tem precedência sobre o filtro 0+0.
+// Desfecho do fluxo. Piso (ato vinculado) tem precedência sobre o filtro 0+0.
 function desfechoAtual() {
   if (pisoAcionado()) return 'piso';
   if (condicaoConvenienciaLocal()) return 'conveniencia-local';
   return 'normal';
 }
 
-// Soma simples das cinco notas. Notas não pontuadas contam como 0.
-function calcularScore() {
-  return CRITERIOS.reduce((soma, c) => {
+// Critérios de um bloco ('valor' ou 'esforco'), soma e máximo do bloco.
+// Notas não pontuadas contam como 0. Máximo = nº de critérios do bloco × 4.
+function criteriosDoBloco(bloco) {
+  return CRITERIOS.filter((c) => c.bloco === bloco);
+}
+function somaBloco(bloco) {
+  return criteriosDoBloco(bloco).reduce((soma, c) => {
     const nota = estado.pontuacao[c.chave];
     return soma + (typeof nota === 'number' ? nota : 0);
   }, 0);
+}
+function maxBloco(bloco) {
+  return criteriosDoBloco(bloco).length * 4;
+}
+function calcularValor() { return somaBloco('valor'); }
+function calcularEsforco() { return somaBloco('esforco'); }
+
+// Quadrante da plotagem a partir do par (valor, esforço) e das linhas de corte.
+function quadranteDe(valor, esforco) {
+  const valorAlto = valor >= CORTES.valor;
+  const esforcoAlto = esforco >= CORTES.esforco;
+  if (valorAlto && !esforcoAlto) return 'janela';
+  if (valorAlto && esforcoAlto) return 'aposta';
+  if (!valorAlto && !esforcoAlto) return 'preenchimento';
+  return 'revisao';
 }
 
 function todosCriteriosPontuados() {
@@ -383,56 +418,95 @@ function renderDescricaoEstruturada(bloco, d) {
   });
 }
 
-// Renderiza os cinco critérios com cinco descritores cada (Passo 4).
+// Metadados de cada bloco de critérios (Passo 4). O texto do subtotal é
+// preenchido dinamicamente por atualizarScoreVisivel().
+const BLOCOS_CRITERIOS = [
+  {
+    chave: 'valor',
+    titulo: 'Valor',
+    ajuda: 'Ordena a fila — quanto maior, mais alta a prioridade.',
+  },
+  {
+    chave: 'esforco',
+    titulo: 'Esforço de entrega',
+    ajuda: 'Orienta o tratamento e desempata (menor esforço primeiro).',
+  },
+];
+
+// Renderiza um critério (legenda, descrição, descritores e observação) dentro
+// de um container de bloco.
+function renderCriterio(container, c) {
+  const bloco = document.createElement('fieldset');
+  bloco.className = 'criterio';
+  bloco.dataset.criterio = c.chave;
+
+  const legenda = document.createElement('legend');
+  legenda.textContent = c.rotulo;
+  // Tooltip contextual do critério (quando a régua declara `tooltip`).
+  const tip = c.tooltip && criarTooltipEl(c.tooltip);
+  if (tip) legenda.appendChild(tip);
+  bloco.appendChild(legenda);
+
+  if (typeof c.descricao === 'string' && c.descricao) {
+    const desc = document.createElement('p');
+    desc.className = 'criterio-descricao';
+    desc.textContent = c.descricao;
+    bloco.appendChild(desc);
+  } else if (c.descricao && typeof c.descricao === 'object') {
+    renderDescricaoEstruturada(bloco, c.descricao);
+  }
+
+  c.descritores.forEach((texto, nota) => {
+    const id = `crit-${c.chave}-${nota}`;
+    const linha = document.createElement('label');
+    linha.className = 'descritor-linha';
+    linha.setAttribute('for', id);
+    linha.innerHTML = `
+      <input type="radio" name="crit-${c.chave}" id="${id}"
+             data-criterio="${c.chave}" value="${nota}" />
+      <span class="nota-badge">${nota}</span>
+      <span class="descritor-texto">${texto}</span>`;
+    bloco.appendChild(linha);
+  });
+
+  // Evidência / observação livre do critério.
+  const obs = document.createElement('div');
+  obs.className = 'campo observacao-campo';
+  obs.innerHTML = `
+    <label for="obs-${c.chave}">Evidência / observação (opcional)</label>
+    <textarea id="obs-${c.chave}" data-observacao="${c.chave}" rows="2"
+      placeholder="Métrica, relato ou justificativa que ancora a nota"></textarea>`;
+  bloco.appendChild(obs);
+
+  container.appendChild(bloco);
+}
+
+// Renderiza os cinco critérios agrupados nos dois blocos (Passo 4): Valor
+// (0-12, ordena a fila) e Esforço de entrega (0-8, orienta e desempata). Os
+// eixos são distintos — não somam num resultado único.
 function renderCriterios() {
   const container = $('#criterios');
   container.innerHTML = '';
 
-  CRITERIOS.forEach((c) => {
-    const bloco = document.createElement('fieldset');
-    bloco.className = 'criterio';
-    bloco.dataset.criterio = c.chave;
+  BLOCOS_CRITERIOS.forEach((b) => {
+    const criterios = criteriosDoBloco(b.chave);
+    if (!criterios.length) return;
 
-    const escalaNota = c.invertido
-      ? '<span class="tag">escala invertida — 4 = melhor</span>'
-      : '';
+    const secao = document.createElement('section');
+    secao.className = 'bloco-criterios';
+    secao.dataset.bloco = b.chave;
 
-    const legenda = document.createElement('legend');
-    legenda.innerHTML = `${c.rotulo} ${escalaNota}`;
-    bloco.appendChild(legenda);
+    const cabecalho = document.createElement('div');
+    cabecalho.className = 'bloco-cabecalho';
+    cabecalho.innerHTML = `
+      <h3 class="bloco-titulo">${b.titulo}
+        <span class="bloco-subtotal" id="subtotal-${b.chave}">0/${criterios.length * 4}</span>
+      </h3>
+      <p class="bloco-ajuda">${b.ajuda}</p>`;
+    secao.appendChild(cabecalho);
 
-    if (typeof c.descricao === 'string' && c.descricao) {
-      const desc = document.createElement('p');
-      desc.className = 'criterio-descricao';
-      desc.textContent = c.descricao;
-      bloco.appendChild(desc);
-    } else if (c.descricao && typeof c.descricao === 'object') {
-      renderDescricaoEstruturada(bloco, c.descricao);
-    }
-
-    c.descritores.forEach((texto, nota) => {
-      const id = `crit-${c.chave}-${nota}`;
-      const linha = document.createElement('label');
-      linha.className = 'descritor-linha';
-      linha.setAttribute('for', id);
-      linha.innerHTML = `
-        <input type="radio" name="crit-${c.chave}" id="${id}"
-               data-criterio="${c.chave}" value="${nota}" />
-        <span class="nota-badge">${nota}</span>
-        <span class="descritor-texto">${texto}</span>`;
-      bloco.appendChild(linha);
-    });
-
-    // Evidência / observação livre do critério.
-    const obs = document.createElement('div');
-    obs.className = 'campo observacao-campo';
-    obs.innerHTML = `
-      <label for="obs-${c.chave}">Evidência / observação (opcional)</label>
-      <textarea id="obs-${c.chave}" data-observacao="${c.chave}" rows="2"
-        placeholder="Métrica, relato ou justificativa que ancora a nota"></textarea>`;
-    bloco.appendChild(obs);
-
-    container.appendChild(bloco);
+    criterios.forEach((c) => renderCriterio(secao, c));
+    container.appendChild(secao);
   });
 }
 
@@ -459,7 +533,7 @@ function mostrarPasso(indice) {
   // Atualizações específicas ao entrar em certos passos
   if (estado.passoAtual === 1) atualizarAvisoTriagem();
   if (estado.passoAtual === 2) sincronizarCuradoria();
-  if (estado.passoAtual === 3) atualizarTetoComplexidade();
+  if (estado.passoAtual === 3) atualizarPisoComplexidade();
   if (estado.passoAtual === 4) atualizarPainelFiltros();
   if (estado.passoAtual === 5) { gerarMemoria(); atualizarDesfechoMemoria(); }
 
@@ -501,16 +575,30 @@ function renderStepper() {
  * Sincronizações de tela
  * ------------------------------------------------------------------ */
 
-// O score fica visível no rodapé e no passo de pontuação. Sob ato
-// vinculado a demanda recebe score fixo de 20 (prioridade absoluta).
+// O par valor × esforço fica visível no rodapé e no passo de pontuação, com os
+// subtotais por bloco. Sob ato vinculado a demanda sai da matriz discricionária
+// (sem par valor × esforço).
 function atualizarScoreVisivel() {
-  const score = pisoAcionado() ? 20 : calcularScore();
-  $('#score-rodape').textContent = `${score} / 20`;
-  $('#score-live').textContent = `${score} / 20`;
+  const v = calcularValor();
+  const e = calcularEsforco();
+  const maxV = maxBloco('valor');
+  const maxE = maxBloco('esforco');
+
+  const sv = $('#subtotal-valor');
+  if (sv) sv.textContent = `${v}/${maxV}`;
+  const se = $('#subtotal-esforco');
+  if (se) se.textContent = `${e}/${maxE}`;
+
+  const resumo = pisoAcionado()
+    ? 'ato vinculado'
+    : `Valor ${v}/${maxV} · Esforço ${e}/${maxE}`;
+  $('#score-rodape').textContent = resumo;
+  const live = $('#score-live');
+  if (live) live.textContent = resumo;
 }
 
-// Passo 2 — aviso de ato vinculado. Informativo: explica o score fixo de
-// 20; o avaliador pode desmarcar para avaliar a demanda pela matriz.
+// Passo 2 — aviso de ato vinculado. Informativo: explica que a demanda sai da
+// matriz discricionária; o avaliador pode desmarcar para avaliar pela matriz.
 function atualizarAvisoTriagem() {
   const el = $('#triagem-aviso');
   const pisos = piosAcionados();
@@ -521,40 +609,40 @@ function atualizarAvisoTriagem() {
   el.hidden = false;
   el.className = 'aviso alerta';
   el.innerHTML =
-    '<strong>Ato vinculado acionado.</strong> Demanda '
-    + 'enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). '
-    + 'A demanda entra na fila já no topo do ranking. Gatilho(s): '
+    '<strong>Ato vinculado acionado.</strong> Demanda fora da matriz '
+    + 'discricionária — encaminhamento direto ao topo da fila, independentemente '
+    + 'do par valor × esforço. A pontuação é pulada. Gatilho(s): '
     + pisos.map((p) => p.rotulo).join(', ') + '. Desmarque para avaliar pela matriz.';
 }
 
-// Passo 4 — aplica o teto de Complexidade pela camada validada.
-//  - Core SEI: nota fixa em 0, radios desabilitados, sem override.
-//  - Demais camadas: nota acima do teto marca override e exige justificativa.
-function atualizarTetoComplexidade() {
+// Passo 4 — aplica o piso de Complexidade pela camada validada.
+//  - Core SEI: nota fixa em 4 (altíssima), radios desabilitados, sem override.
+//  - Demais camadas: nota ABAIXO do piso marca override e exige justificativa.
+function atualizarPisoComplexidade() {
   const bloco = $('.criterio[data-criterio="complexidade"]');
   if (!bloco) return;
 
-  const teto = tetoComplexidade();
+  const piso = pisoComplexidade();
   const radios = $$('input[name="crit-complexidade"]', bloco);
   const rotuloCamada = rotuloPorValor(CAMADAS, estado.curadoria.camadaValidada);
   const overlay = $('#override-complexidade');
 
-  // Nota de teto (criada uma única vez, logo após a descrição/legenda).
-  let notaEl = bloco.querySelector('.teto-nota');
+  // Nota de piso (criada uma única vez, logo após a descrição/legenda).
+  let notaEl = bloco.querySelector('.piso-nota');
   if (!notaEl) {
     notaEl = document.createElement('p');
-    notaEl.className = 'teto-nota';
+    notaEl.className = 'piso-nota';
     const ancora = bloco.querySelector('.criterio-descricao') || bloco.querySelector('legend');
     ancora.insertAdjacentElement('afterend', notaEl);
   }
 
   const limparMarca = () => radios.forEach((r) =>
-    r.closest('.descritor-linha').classList.remove('acima-teto'));
+    r.closest('.descritor-linha').classList.remove('abaixo-piso'));
 
-  // Sem camada definida — sem teto a aplicar.
-  if (teto === null) {
-    notaEl.className = 'teto-nota';
-    notaEl.textContent = 'Defina a camada na curadoria (Passo 3) para aplicar o teto de complexidade.';
+  // Sem camada definida — sem piso a aplicar.
+  if (piso === null) {
+    notaEl.className = 'piso-nota';
+    notaEl.textContent = 'Defina a camada na curadoria (Passo 3) para aplicar o piso de complexidade.';
     radios.forEach((r) => { r.disabled = false; });
     limparMarca();
     estado.override.ativo = false;
@@ -562,42 +650,42 @@ function atualizarTetoComplexidade() {
     return;
   }
 
-  // Core SEI — nota fixa em 0, sem override possível.
+  // Core SEI — nota fixa em 4 (altíssima), sem override possível.
   if (camadaCore()) {
-    estado.pontuacao.complexidade = 0;
+    estado.pontuacao.complexidade = 4;
     radios.forEach((r) => {
-      r.checked = Number(r.value) === 0;
+      r.checked = Number(r.value) === 4;
       r.disabled = true;
     });
     limparMarca();
-    notaEl.className = 'teto-nota fixa';
-    notaEl.textContent = 'Camada Core SEI: Complexidade fixada em 0 (altíssima), sem possibilidade de override.';
+    notaEl.className = 'piso-nota fixa';
+    notaEl.textContent = 'Camada Core SEI: Complexidade fixada em 4 (altíssima), sem possibilidade de override.';
     estado.override.ativo = false;
     if (overlay) overlay.hidden = true;
     return;
   }
 
-  // Demais camadas — override possível acima do teto.
-  notaEl.className = 'teto-nota';
+  // Demais camadas — override possível abaixo do piso.
+  notaEl.className = 'piso-nota';
   notaEl.textContent =
-    `Teto pela camada ${rotuloCamada}: nota máxima ${teto}. `
-    + 'Notas acima do teto exigem justificativa (override).';
+    `Piso pela camada ${rotuloCamada}: nota mínima ${piso}. `
+    + 'Notas abaixo do piso exigem justificativa (override).';
   radios.forEach((r) => {
     r.disabled = false;
-    r.closest('.descritor-linha').classList.toggle('acima-teto', Number(r.value) > teto);
+    r.closest('.descritor-linha').classList.toggle('abaixo-piso', Number(r.value) < piso);
   });
 
   const nota = estado.pontuacao.complexidade;
-  const ehOverride = typeof nota === 'number' && nota > teto;
+  const ehOverride = typeof nota === 'number' && nota < piso;
   estado.override.ativo = ehOverride;
 
   if (ehOverride) {
     estado.override.nota = nota;
-    estado.override.teto = teto;
+    estado.override.piso = piso;
     if (overlay) {
       overlay.hidden = false;
       $('#override-alerta').textContent =
-        `Nota ${nota} está acima do teto ${teto} da camada ${rotuloCamada}. `
+        `Nota ${nota} está abaixo do piso ${piso} da camada ${rotuloCamada}. `
         + 'Justifique o override para prosseguir.';
       $('#override-justificativa').value = estado.override.justificativa;
     }
@@ -608,20 +696,23 @@ function atualizarTetoComplexidade() {
   }
 }
 
-// Passo 6 — banner de desfecho. Mostra o que aconteceu, o score e um atalho
-// para retomar o passo anterior. Não esconde a memória nem o restante.
+// Passo 6 — banner de desfecho. Mostra o que aconteceu, o par valor × esforço
+// e um atalho para retomar o passo anterior. Não esconde a memória.
 function atualizarDesfechoMemoria() {
   const el = $('#memoria-desfecho');
-  const score = calcularScore();
+  const v = calcularValor();
+  const e = calcularEsforco();
+  const maxV = maxBloco('valor');
+  const maxE = maxBloco('esforco');
   el.hidden = false;
 
   switch (desfechoAtual()) {
     case 'piso':
       el.className = 'aviso alerta';
       el.innerHTML =
-        '<strong>Enquadrada por ato vinculado.</strong> Score '
-        + 'fixo de 20/20 (prioridade absoluta) — a demanda entra na fila já no topo '
-        + 'do ranking. '
+        '<strong>Enquadrada por ato vinculado.</strong> Fora da matriz '
+        + 'discricionária — encaminhamento direto ao topo da fila, '
+        + 'independentemente do par valor × esforço. '
         + '<button type="button" class="link" id="retomar-triagem">Voltar à triagem</button>';
       break;
     case 'conveniencia-local':
@@ -629,14 +720,16 @@ function atualizarDesfechoMemoria() {
       el.innerHTML =
         '<strong>Fluxo encerrado por filtro automático.</strong> Demanda '
         + 'tratada como conveniência estritamente local — não disputa fila, e é '
-        + 'encaminhada à camada de uso local. Score apurado: ' + score + '/20. '
+        + 'encaminhada à camada de uso local. Valor apurado: ' + v + '/' + maxV
+        + ' · Esforço: ' + e + '/' + maxE + '. '
         + '<button type="button" class="link" id="retomar-pontuacao">Voltar à pontuação</button>';
       break;
     default:
       el.className = 'aviso ok';
       el.innerHTML =
-        '<strong>Avaliação completa pela matriz.</strong> Score final: '
-        + score + '/20.';
+        '<strong>Avaliação completa pela matriz.</strong> Valor: ' + v + '/' + maxV
+        + ' · Esforço de entrega: ' + e + '/' + maxE
+        + ' · Quadrante: ' + QUADRANTES[quadranteDe(v, e)].rotulo + '.';
   }
 }
 
@@ -652,7 +745,7 @@ function sincronizarCuradoria() {
 }
 
 // Passo 5 — filtro 0+0. Aciona o desfecho "conveniência local" e mostra
-// mensagem informativa com o score parcial.
+// mensagem informativa com o valor parcial.
 function atualizarPainelFiltros() {
   const impacto = estado.pontuacao.impacto;
   const ganho = estado.pontuacao.ganho;
@@ -666,11 +759,12 @@ function atualizarPainelFiltros() {
   } else if (condicaoConvenienciaLocal()) {
     alvo.textContent =
       'Filtro acionado — Demanda tratada como conveniência estritamente local '
-      + '— não disputa fila, e é encaminhada à camada de uso local. Score '
-      + 'parcial: ' + calcularScore() + '/20. Volte à pontuação se classificou errado.';
+      + '— não disputa fila, e é encaminhada à camada de uso local. Valor '
+      + 'parcial: ' + calcularValor() + '/' + maxBloco('valor')
+      + '. Volte à pontuação se classificou errado.';
     alvo.className = 'aviso alerta';
   } else {
-    alvo.textContent = 'Filtro não acionado — a demanda segue para a memória de cálculo com o score apurado.';
+    alvo.textContent = 'Filtro não acionado — a demanda segue para a memória de cálculo com o par valor × esforço apurado.';
     alvo.className = 'aviso ok';
   }
 }
@@ -1035,11 +1129,14 @@ function aplicarMemoria(m) {
     }
   });
 
-  estado.override = { ativo: false, nota: null, teto: null, justificativa: '' };
+  estado.override = { ativo: false, nota: null, piso: null, justificativa: '' };
   const ov = (m.overrides || []).find((o) => o && o.criterio === 'complexidade');
   if (ov) {
     estado.override = {
-      ativo: true, nota: ov.nota, teto: ov.teto, justificativa: ov.justificativa || '',
+      ativo: true,
+      nota: ov.nota,
+      piso: (ov.piso != null ? ov.piso : (ov.teto != null ? ov.teto : null)),
+      justificativa: ov.justificativa || '',
     };
   }
 
@@ -1095,14 +1192,21 @@ function rotuloDesfecho(codigo) {
 
 function mensagemDesfecho(codigo) {
   if (codigo === 'piso') {
-    return 'Demanda enquadrada como ato vinculado — score fixo '
-      + 'de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking.';
+    return 'Demanda enquadrada como ato vinculado — fora da matriz '
+      + 'discricionária. Encaminhamento direto ao topo da fila, independentemente '
+      + 'do par valor × esforço.';
   }
   if (codigo === 'conveniencia-local') {
     return 'Demanda tratada como conveniência estritamente local — não disputa '
       + 'fila, e é encaminhada à camada de uso local.';
   }
   return 'Avaliação completa pela matriz.';
+}
+
+// Rótulo humano de um gatilho de ato vinculado, a partir da chave.
+function rotuloGatilho(chave) {
+  const g = GATILHOS_PISO.find((x) => x.chave === chave);
+  return g ? g.rotulo : chave;
 }
 
 // Timestamp ISO 8601 no fuso horário local, com precisão de segundos (sem
@@ -1123,20 +1227,25 @@ function montarMemoria() {
   const id = estado.identificacao;
   const desfecho = desfechoAtual();
   const pisos = piosAcionados();
-  const teto = tetoComplexidade();
-  const overrideAtivo = desfecho !== 'piso' && estado.override.ativo;
-
-  // Sob piso a demanda recebe score fixo de 20 (prioridade absoluta); os
-  // cinco critérios não são pontuados.
+  const piso = pisoComplexidade();
   const ehPiso = desfecho === 'piso';
-  const scoreTotal = ehPiso ? 20 : calcularScore();
+  const overrideAtivo = !ehPiso && estado.override.ativo;
+
+  // Sob ato vinculado a demanda sai da matriz discricionária: os cinco
+  // critérios não são pontuados e não há par valor × esforço nem quadrante.
+  const valor = ehPiso ? null : calcularValor();
+  const esforco = ehPiso ? null : calcularEsforco();
+  const maxV = maxBloco('valor');
+  const maxE = maxBloco('esforco');
+  const quad = ehPiso ? null : quadranteDe(valor, esforco);
 
   const criterios = CRITERIOS.map((c) => {
     const notaBruta = estado.pontuacao[c.chave];
-    const pontuado = desfecho !== 'piso' && typeof notaBruta === 'number';
+    const pontuado = !ehPiso && typeof notaBruta === 'number';
     return {
       chave: c.chave,
       rotulo: c.rotulo,
+      bloco: c.bloco,
       invertido: !!c.invertido,
       nota: pontuado ? notaBruta : null,
       descritor: pontuado ? c.descritores[notaBruta] : null,
@@ -1150,7 +1259,7 @@ function montarMemoria() {
       criterio: 'complexidade',
       rotulo: 'Complexidade',
       nota: estado.override.nota,
-      teto: estado.override.teto,
+      piso: estado.override.piso,
       camada: {
         valor: estado.curadoria.camadaValidada,
         rotulo: rotuloPorValor(CAMADAS, estado.curadoria.camadaValidada),
@@ -1170,6 +1279,8 @@ function montarMemoria() {
       : [],
     pisoAcionado: ehPiso,
     pisoJustificativa: ehPiso && pisos.length ? pisos[0].chave : null,
+    // Subtipo do ato vinculado (Patch 5): chave do gatilho, ou null.
+    piso_obrigatorio: ehPiso && pisos.length ? pisos[0].chave : null,
     desfecho: {
       codigo: desfecho,
       rotulo: rotuloDesfecho(desfecho),
@@ -1198,12 +1309,12 @@ function montarMemoria() {
         valor: estado.curadoria.camadaValidada,
         rotulo: rotuloPorValor(CAMADAS, estado.curadoria.camadaValidada),
       },
-      tetoComplexidade: teto,
+      pisoComplexidade: piso,
     },
     criterios,
     filtros: {
       pisoObrigatorio: {
-        acionado: desfecho === 'piso',
+        acionado: ehPiso,
         passo: 2,
         gatilhos: pisos.map((p) => p.rotulo),
       },
@@ -1213,8 +1324,103 @@ function montarMemoria() {
       },
     },
     overrides,
-    score: { total: scoreTotal, maximo: 20, texto: `${scoreTotal}/20` },
+    // Justificativa do override do piso de complexidade (Patch 5), ou null.
+    override_complexidade: overrideAtivo ? estado.override.justificativa.trim() : null,
+    // Par valor × esforço e quadrante (null sob ato vinculado).
+    valor: ehPiso ? null : { total: valor, maximo: maxV, texto: `${valor}/${maxV}` },
+    esforco: ehPiso ? null : { total: esforco, maximo: maxE, texto: `${esforco}/${maxE}` },
+    quadrante: ehPiso ? null : { codigo: quad, rotulo: QUADRANTES[quad].rotulo },
   };
+}
+
+// SVG (string) da plotagem valor × esforço. String pura para reuso: render no
+// DOM (Passo 6), download e embutido no Markdown. Vazio sob ato vinculado
+// (a demanda não tem posição no quadrante — antecede a régua).
+function svgPlotagemString(m) {
+  if (!m || !m.valor || !m.esforco) return '';
+
+  const V = m.valor.total;
+  const E = m.esforco.total;
+  const VMAX = m.valor.maximo || 12;
+  const EMAX = m.esforco.maximo || 8;
+  const corteV = CORTES.valor;
+  const corteE = CORTES.esforco;
+
+  // Área útil de plotagem (deixa margem para eixos, ticks e rótulos).
+  const X0 = 60, X1 = 540, YBASE = 340, YTOPO = 40;
+  const W = X1 - X0, H = YBASE - YTOPO;
+  const xFor = (e) => X0 + (e / EMAX) * W;   // esforço: 0 à esquerda, EMAX à direita
+  const yFor = (v) => YBASE - (v / VMAX) * H; // valor: 0 embaixo, VMAX no topo
+
+  const xCorte = xFor(corteE);
+  const yCorte = yFor(corteV);
+  const f = (n) => Number(n).toFixed(1);
+
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const titulo = (m.identificacao && m.identificacao.titulo) || '(sem título)';
+  const tituloCurto = titulo.length > 40 ? titulo.slice(0, 39) + '…' : titulo;
+  const quadRotulo = m.quadrante ? m.quadrante.rotulo : '';
+
+  const mx = xFor(E);
+  const my = yFor(V);
+  // Label do marcador: à esquerda se o ponto está na metade direita do gráfico.
+  const labelDir = mx > (X0 + X1) / 2;
+  const labelX = labelDir ? mx - 12 : mx + 12;
+  const labelAnchor = labelDir ? 'end' : 'start';
+  const labelY = Math.max(YTOPO + 14, Math.min(YBASE - 6, my - 12));
+  const labelTexto = `${tituloCurto} (V=${V}, E=${E})`;
+
+  // Ticks dos eixos, nos inteiros.
+  let ticksX = '';
+  for (let e = 0; e <= EMAX; e++) {
+    const x = xFor(e);
+    ticksX += `<line x1="${f(x)}" y1="${YBASE}" x2="${f(x)}" y2="${YBASE + 5}" stroke="#8895a3" stroke-width="1"/>`
+      + `<text x="${f(x)}" y="${YBASE + 18}" text-anchor="middle" font-size="11" fill="#45525e">${e}</text>`;
+  }
+  let ticksY = '';
+  for (let v = 0; v <= VMAX; v++) {
+    const y = yFor(v);
+    ticksY += `<line x1="${X0 - 5}" y1="${f(y)}" x2="${X0}" y2="${f(y)}" stroke="#8895a3" stroke-width="1"/>`
+      + `<text x="${X0 - 9}" y="${f(y + 3.5)}" text-anchor="end" font-size="11" fill="#45525e">${v}</text>`;
+  }
+
+  const quadRect = (x, y, w, h, fill) =>
+    `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="${fill}"/>`;
+  const rotuloQuad = (x, y, texto) =>
+    `<text x="${f(x)}" y="${f(y)}" text-anchor="middle" font-size="13" font-weight="600" fill="#5b6b7a" opacity="0.85">${esc(texto)}</text>`;
+
+  const yMeio = (YTOPO + YBASE) / 2;
+
+  return `<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plot-titulo plot-desc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">`
+    + `<title id="plot-titulo">Posição na matriz valor × esforço</title>`
+    + `<desc id="plot-desc">Demanda "${esc(tituloCurto)}" com valor ${V} de ${VMAX} e esforço de entrega ${E} de ${EMAX}, no quadrante ${esc(quadRotulo)}. Linhas de corte em valor ${corteV} e esforço ${corteE}.</desc>`
+    + `<text x="300" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#1c2733">Posição na matriz valor × esforço</text>`
+    // Quadrantes (preenchimento suave, cores neutras)
+    + quadRect(X0, YTOPO, xCorte - X0, yCorte - YTOPO, '#e8f2ea')          // sup. esq: janela
+    + quadRect(xCorte, YTOPO, X1 - xCorte, yCorte - YTOPO, '#e9eff7')      // sup. dir: aposta
+    + quadRect(X0, yCorte, xCorte - X0, YBASE - yCorte, '#f2f3f4')         // inf. esq: preenchimento
+    + quadRect(xCorte, yCorte, X1 - xCorte, YBASE - yCorte, '#f6eeee')     // inf. dir: revisão
+    // Rótulos dos quadrantes (centralizados)
+    + rotuloQuad((X0 + xCorte) / 2, (YTOPO + yCorte) / 2, 'Janela de oportunidade')
+    + rotuloQuad((xCorte + X1) / 2, (YTOPO + yCorte) / 2, 'Aposta estratégica')
+    + rotuloQuad((X0 + xCorte) / 2, (yCorte + YBASE) / 2, 'Preenchimento de capacidade')
+    + rotuloQuad((xCorte + X1) / 2, (yCorte + YBASE) / 2, 'Revisão e devolutiva')
+    // Linhas de corte (tracejadas)
+    + `<line x1="${f(xCorte)}" y1="${YTOPO}" x2="${f(xCorte)}" y2="${YBASE}" stroke="#8895a3" stroke-width="1.5" stroke-dasharray="6 4"/>`
+    + `<line x1="${X0}" y1="${f(yCorte)}" x2="${X1}" y2="${f(yCorte)}" stroke="#8895a3" stroke-width="1.5" stroke-dasharray="6 4"/>`
+    // Moldura + eixos + ticks
+    + `<rect x="${X0}" y="${YTOPO}" width="${W}" height="${H}" fill="none" stroke="#8895a3" stroke-width="1.5"/>`
+    + ticksX + ticksY
+    // Títulos dos eixos
+    + `<text x="${(X0 + X1) / 2}" y="${YBASE + 36}" text-anchor="middle" font-size="12" font-weight="600" fill="#1c2733">Esforço de entrega →</text>`
+    + `<text x="18" y="${yMeio}" text-anchor="middle" font-size="12" font-weight="600" fill="#1c2733" transform="rotate(-90 18 ${yMeio})">Valor ↑</text>`
+    // Marcador da demanda
+    + `<circle cx="${f(mx)}" cy="${f(my)}" r="8" fill="#C0392B" stroke="#ffffff" stroke-width="1.5"/>`
+    + `<text x="${f(labelX)}" y="${f(labelY)}" text-anchor="${labelAnchor}" font-size="12" font-weight="600" fill="#1c2733">${esc(labelTexto)}</text>`
+    + `</svg>`;
 }
 
 // Markdown estruturado, para colar no Discourse/ParticiPEN.
@@ -1222,15 +1428,15 @@ function memoriaParaMarkdown(m) {
   const ni = (v) => (v && String(v).trim() ? v : '(não informado)');
 
   const blocosCriterios = m.criterios.map((c) => {
-    const escala = c.invertido ? ' _(escala invertida — 4 = melhor)_' : '';
+    const bloco = c.bloco === 'valor' ? 'Valor' : 'Esforço de entrega';
     const nota = c.nota === null ? 'não pontuado' : String(c.nota);
     const descritor = c.descritor === null ? '—' : c.descritor;
     const obs = c.observacao || '(não informada)';
     const ovr = m.overrides.find((o) => o.criterio === c.chave);
     const linhaOvr = ovr
-      ? `\n- **Override de teto:** nota ${ovr.nota} acima do teto ${ovr.teto} (camada ${ovr.camada.rotulo})`
+      ? `\n- **Override do piso:** nota ${ovr.nota} abaixo do piso ${ovr.piso} (camada ${ovr.camada.rotulo})`
       : '';
-    return `### ${c.rotulo}${escala}\n`
+    return `### ${c.rotulo} _(${bloco})_\n`
       + `- **Nota:** ${nota}\n`
       + `- **Descritor:** ${descritor}\n`
       + `- **Evidência/observação:** ${obs}${linhaOvr}`;
@@ -1250,14 +1456,14 @@ function memoriaParaMarkdown(m) {
 
   const overridesTexto = m.overrides.length
     ? m.overrides.map((o) =>
-        `${o.rotulo}: nota ${o.nota} acima do teto ${o.teto} (camada ${o.camada.rotulo}) `
+        `${o.rotulo}: nota ${o.nota} abaixo do piso ${o.piso} (camada ${o.camada.rotulo}) `
         + `— justificativa: "${o.justificativa}"`).join('; ')
     : 'Nenhum';
 
-  let tetoTxt;
-  if (m.curadoria.tetoComplexidade === null) tetoTxt = '(camada não definida)';
-  else if (m.curadoria.camadaValidada.valor === 'core-sei') tetoTxt = '0 (fixo, sem override)';
-  else tetoTxt = String(m.curadoria.tetoComplexidade);
+  let pisoTxt;
+  if (m.curadoria.pisoComplexidade === null) pisoTxt = '(camada não definida)';
+  else if (m.curadoria.camadaValidada.valor === 'core-sei') pisoTxt = '4 (fixo, sem override)';
+  else pisoTxt = String(m.curadoria.pisoComplexidade);
 
   const pisoLinha = m.triagem.pisoAcionado
     ? `acionado (${m.filtros.pisoObrigatorio.gatilhos.join(', ')})`
@@ -1271,7 +1477,8 @@ function memoriaParaMarkdown(m) {
     : '(nenhum)';
 
   // Sob ato vinculado não há pontuação: a seção de critérios dá lugar a um
-  // bloco de enquadramento com o score fixo.
+  // bloco de enquadramento; do contrário, sai o par valor × esforço, o
+  // quadrante e o SVG da plotagem embutido.
   const rodapeMeta =
     `- **Timestamp (ISO 8601):** ${m.timestamp}\n`
     + `- **Avaliador:** ${m.avaliador}\n`
@@ -1280,20 +1487,31 @@ function memoriaParaMarkdown(m) {
   let corpoFinal;
   if (m.pisoAcionado) {
     const gatilhosAcionados = m.triagem.gatilhos.filter((g) => g.marcado).map((g) => g.rotulo);
+    const subtipo = gatilhosAcionados.join(', ') || '—';
     corpoFinal = `## Enquadramento por ato vinculado
-- **Gatilho(s) acionado(s):** ${gatilhosAcionados.join(', ') || '—'}
-- **Score:** ${m.score.texto} (fixo, prioridade absoluta)
+- **Piso obrigatório — ato vinculado (${subtipo}). Fora da matriz discricionária.**
+- **Encaminhamento:** direto ao topo da fila, independentemente do par valor × esforço.
 ${rodapeMeta}`;
   } else {
+    const overrideLinha = m.override_complexidade
+      ? `\n- **Override do piso de complexidade:** ${m.override_complexidade}`
+      : '';
+    const svg = svgPlotagemString(m);
+    const plotagem = svg
+      ? `\n\n## Plotagem em quadrantes\n<!-- svg-plotagem -->\n\`\`\`xml\n${svg}\n\`\`\`\n`
+        + `_Linhas de corte: valor ≥ ${CORTES.valor} alto, esforço ≥ ${CORTES.esforco} alto (convenção revisável)._`
+      : '';
     corpoFinal = `## Critérios
 
 ${blocosCriterios}
 
 ## Resultado
-- **Score total:** ${m.score.texto}
+- **Valor:** ${m.valor.texto}
+- **Esforço de entrega:** ${m.esforco.texto}
+- **Quadrante:** ${m.quadrante.rotulo}
 - **Filtros acionados:** ${filtrosTexto}
-- **Overrides de teto:** ${overridesTexto}
-${rodapeMeta}`;
+- **Overrides:** ${overridesTexto}${overrideLinha}
+${rodapeMeta}${plotagem}`;
   }
 
   return `# Memória de cálculo — Matriz de priorização do SEI
@@ -1318,7 +1536,7 @@ ${rodapeMeta}`;
 ${gatilhosLinhas}
 - **Ato vinculado:** ${pisoLinha}
 - **Camada validada:** ${m.curadoria.camadaValidada.rotulo}
-- **Teto de complexidade pela camada:** ${tetoTxt}
+- **Piso de complexidade pela camada:** ${pisoTxt}
 
 ## Desfecho
 **${m.desfecho.rotulo}** — ${m.desfecho.mensagem}
@@ -1331,10 +1549,42 @@ function memoriaParaJSON(m) {
   return JSON.stringify(m, null, 2);
 }
 
-// (Re)monta a memória e exibe o Markdown na textarea.
+// (Re)monta a memória, exibe o Markdown na textarea e renderiza a plotagem.
 function gerarMemoria() {
   memoriaAtual = montarMemoria();
   $('#memoria-saida').value = memoriaParaMarkdown(memoriaAtual);
+  renderPlotagem(memoriaAtual);
+}
+
+// Passo 6 — plotagem em quadrantes. Sob ato vinculado a demanda não tem
+// posição no quadrante (antecede a régua): mostra um card explicativo no lugar.
+function renderPlotagem(m) {
+  const bloco = $('#plotagem-bloco');
+  const card = $('#plotagem-piso-card');
+  if (!bloco || !card) return;
+
+  if (m.desfecho.codigo === 'piso') {
+    bloco.hidden = true;
+    card.hidden = false;
+    $('#plotagem-svg').innerHTML = ''; // limpa SVG de uma geração anterior
+    const sub = m.piso_obrigatorio ? rotuloGatilho(m.piso_obrigatorio) : '—';
+    card.innerHTML =
+      '<strong>Piso obrigatório — ato vinculado.</strong> Fora da matriz '
+      + 'discricionária. Encaminhamento direto ao topo da fila, independentemente '
+      + 'do par valor × esforço.<br><span class="piso-card-sub">Subtipo: '
+      + sub + '.</span>';
+    return;
+  }
+
+  card.hidden = true;
+  bloco.hidden = false;
+  $('#plotagem-svg').innerHTML = svgPlotagemString(m);
+  const nota = $('#plotagem-nota');
+  if (nota) {
+    nota.textContent =
+      `Linhas de corte: valor ≥ ${CORTES.valor} alto, esforço ≥ ${CORTES.esforco} `
+      + 'alto (convenção revisável).';
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -1400,6 +1650,27 @@ function baixarJSON() {
   a.remove();
   URL.revokeObjectURL(url);
   flash('JSON baixado: ' + nome, 4000);
+}
+
+// Exporta o SVG serializado da plotagem, nome baseado no título (slug).
+function baixarSVG() {
+  if (!memoriaAtual) gerarMemoria();
+  if (memoriaAtual.desfecho.codigo === 'piso') {
+    flash('Ato vinculado não tem posição na matriz — sem plotagem para exportar.', 4000);
+    return;
+  }
+  const svg = svgPlotagemString(memoriaAtual);
+  const nome = `plotagem-${slugify(memoriaAtual.identificacao.titulo)}.svg`;
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  flash('SVG baixado: ' + nome, 4000);
 }
 
 /* ------------------------------------------------------------------ *
@@ -1480,7 +1751,7 @@ function ligarEventos() {
     const chave = e.target.dataset.criterio;
     if (!chave) return;
     estado.pontuacao[chave] = Number(e.target.value);
-    if (chave === 'complexidade') atualizarTetoComplexidade();
+    if (chave === 'complexidade') atualizarPisoComplexidade();
     atualizarScoreVisivel();
   });
 
@@ -1509,6 +1780,7 @@ function ligarEventos() {
   // Passo 6 — saídas
   $('#btn-copiar-md').addEventListener('click', copiarMarkdown);
   $('#btn-baixar-json').addEventListener('click', baixarJSON);
+  $('#btn-baixar-svg').addEventListener('click', baixarSVG);
   $('#btn-regenerar').addEventListener('click', () => { gerarMemoria(); atualizarDesfechoMemoria(); });
 }
 
@@ -1527,8 +1799,8 @@ function avancar() {
     return;
   }
 
-  // Passo 2 — ato vinculado pula a pontuação e vai direto à memória
-  // (score fixo de 20, prioridade absoluta).
+  // Passo 2 — ato vinculado sai da matriz discricionária: pula a pontuação e
+  // vai direto à memória (encaminhamento direto ao topo da fila).
   if (atual === 1 && pisoAcionado()) {
     mostrarPasso(5);
     return;
@@ -1612,6 +1884,9 @@ async function init() {
   try {
     const regua = await carregarRegua();
     CRITERIOS = regua.criterios;
+    // Calibragens revisáveis vivem na régua (dados), não no app.
+    if (regua.pisosComplexidade) PISOS_CAMADA = regua.pisosComplexidade;
+    if (regua.cortesPlotagem) CORTES = regua.cortesPlotagem;
   } catch (erro) {
     mostrarErroRegua(erro);
     return;

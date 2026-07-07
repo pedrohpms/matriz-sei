@@ -1,13 +1,14 @@
 {
-  "_comentario": "Memória gerada a partir de um tópico no formato Form Template do ParticiPEN (ver topico-discourse-exemplo.md). origemDosDados='tópico Discourse'. As respostas em linguagem natural foram traduzidas para os valores canônicos: 'Um problema a resolver'→problema; 'Quero acrescentar uma funcionalidade...'→Evolutiva; 'Praticamente todos os órgãos da APF'→Módulo PEN. As notas foram dadas pela GPSEI. Camada Módulo PEN => teto de complexidade 1. Score 13/20.",
-  "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-25T11:00:00-03:00",
+  "_comentario": "Memória gerada a partir de um tópico no formato Form Template do ParticiPEN (ver topico-discourse-exemplo.md). origemDosDados='tópico Discourse'. Respostas em linguagem natural traduzidas: 'Um problema a resolver'→problema; 'Quero acrescentar uma funcionalidade...'→Evolutiva; 'Praticamente todos os órgãos da APF'→Módulo PEN. Notas dadas pela GPSEI. Camada Módulo PEN => piso de complexidade 3. Valor alto (10/12) e Esforço de entrega baixo (3/8, integração aditiva e reversível) => quadrante 'Janela de oportunidade' (corte valor 6 / esforço 4).",
+  "versaoRegua": "2.0.0",
+  "timestamp": "2026-07-07T11:00:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "tópico Discourse",
   "urlTopico": "https://participen.processoeletronico.gov.br/t/sincronizacao-hierarquia-siorg/4242",
   "camposAjustadosManualmente": [],
   "pisoAcionado": false,
   "pisoJustificativa": null,
+  "piso_obrigatorio": null,
   "desfecho": {
     "codigo": "normal",
     "rotulo": "Avaliação completa pela matriz",
@@ -35,12 +36,13 @@
   },
   "curadoria": {
     "camadaValidada": { "valor": "modulo-pen", "rotulo": "Módulo PEN" },
-    "tetoComplexidade": 1
+    "pisoComplexidade": 3
   },
   "criterios": [
     {
       "chave": "impacto",
       "rotulo": "Impacto institucional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 3,
       "descritor": "Uma dimensão aparece forte: programa ou compromisso formal de governo transversal; diretriz setorial muito ampla e cobrada; recomendação reiterada de órgão de controle; citação na imprensa ou exposição a usuário externo de forma sensível.",
@@ -49,6 +51,7 @@
     {
       "chave": "orgaos",
       "rotulo": "Quantidade de órgãos afetados",
+      "bloco": "valor",
       "invertido": false,
       "nota": 4,
       "descritor": "Múltiplos segmentos, ou transversal à esfera federal (>150 órgãos).",
@@ -57,6 +60,7 @@
     {
       "chave": "ganho",
       "rotulo": "Ganho operacional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 3,
       "descritor": "Ganho alto em tarefa frequente: elimina gargalo, contorno manual ou retrabalho recorrente em atividade diária.",
@@ -65,18 +69,20 @@
     {
       "chave": "complexidade",
       "rotulo": "Complexidade",
-      "invertido": true,
-      "nota": 1,
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 3,
       "descritor": "Alta. Módulo PEN ou mudança coordenada em várias frentes; dependências relevantes; entrega em vários meses.",
-      "observacao": ""
+      "observacao": "Camada Módulo PEN; no piso de complexidade da camada."
     },
     {
       "chave": "risco",
-      "rotulo": "Risco",
-      "invertido": true,
-      "nota": 2,
-      "descritor": "Médio. Regressão plausível em pontos identificáveis; mitigável com teste.",
-      "observacao": ""
+      "rotulo": "Risco de entrega",
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 0,
+      "descritor": "Desprezível. Mudança isolada e reversível.",
+      "observacao": "Integração aditiva por interface oficial do PEN; não altera fluxos existentes e é reversível."
     }
   ],
   "filtros": {
@@ -84,5 +90,8 @@
     "convenienciaLocal": { "acionado": false, "passo": 5 }
   },
   "overrides": [],
-  "score": { "total": 13, "maximo": 20, "texto": "13/20" }
+  "override_complexidade": null,
+  "valor": { "total": 10, "maximo": 12, "texto": "10/12" },
+  "esforco": { "total": 3, "maximo": 8, "texto": "3/8" },
+  "quadrante": { "codigo": "janela", "rotulo": "Janela de oportunidade" }
 }

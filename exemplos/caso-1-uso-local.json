@@ -1,13 +1,14 @@
 {
-  "_comentario": "Caso típico de baixo alcance: melhoria local, barata e segura. Estressa o fluxo 'feliz' sem filtros nem override — entra pela matriz e sai com score médio (10/20). Camada uso local => teto de complexidade 4.",
-  "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-20T13:15:00-03:00",
+  "_comentario": "Caso típico de baixo alcance: melhoria local, barata e segura. Fluxo 'feliz' sem filtros nem override. Bloco Valor baixo (3/12), Esforço de entrega baixo (2/8) => quadrante 'Preenchimento de capacidade'. Camada uso local => piso de complexidade 1.",
+  "versaoRegua": "2.0.0",
+  "timestamp": "2026-07-07T13:15:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "preenchimento manual",
   "urlTopico": null,
   "camposAjustadosManualmente": [],
   "pisoAcionado": false,
   "pisoJustificativa": null,
+  "piso_obrigatorio": null,
   "desfecho": {
     "codigo": "normal",
     "rotulo": "Avaliação completa pela matriz",
@@ -35,12 +36,13 @@
   },
   "curadoria": {
     "camadaValidada": { "valor": "uso-local", "rotulo": "Uso local" },
-    "tetoComplexidade": 4
+    "pisoComplexidade": 1
   },
   "criterios": [
     {
       "chave": "impacto",
       "rotulo": "Impacto institucional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 1,
       "descritor": "Uma dimensão aparece de forma marginal: diretriz informal local, tema lateral em reunião com controle sem recomendação formal, ou visibilidade restrita a um grupo pequeno.",
@@ -49,6 +51,7 @@
     {
       "chave": "orgaos",
       "rotulo": "Quantidade de órgãos afetados",
+      "bloco": "valor",
       "invertido": false,
       "nota": 0,
       "descritor": "1 órgão, em uso estritamente local, sem reuso possível.",
@@ -57,6 +60,7 @@
     {
       "chave": "ganho",
       "rotulo": "Ganho operacional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 2,
       "descritor": "Ganho perceptível em tarefa regular: reduz tempo ou erro de forma mensurável em uso semanal a diário, mantendo a forma de trabalhar.",
@@ -65,16 +69,18 @@
     {
       "chave": "complexidade",
       "rotulo": "Complexidade",
-      "invertido": true,
-      "nota": 4,
-      "descritor": "Trivial. Camada de uso local; uma área envolvida; sem dependências; entrega em dias.",
-      "observacao": ""
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 1,
+      "descritor": "Baixa. Grupo ou vitrine simples; uma a duas áreas; entrega em semanas.",
+      "observacao": "Camada de uso local; no piso de complexidade da camada."
     },
     {
       "chave": "risco",
-      "rotulo": "Risco",
-      "invertido": true,
-      "nota": 3,
+      "rotulo": "Risco de entrega",
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 1,
       "descritor": "Baixo. Efeito colateral improvável; reversão simples.",
       "observacao": ""
     }
@@ -84,5 +90,8 @@
     "convenienciaLocal": { "acionado": false, "passo": 5 }
   },
   "overrides": [],
-  "score": { "total": 10, "maximo": 20, "texto": "10/20" }
+  "override_complexidade": null,
+  "valor": { "total": 3, "maximo": 12, "texto": "3/12" },
+  "esforco": { "total": 2, "maximo": 8, "texto": "2/8" },
+  "quadrante": { "codigo": "preenchimento", "rotulo": "Preenchimento de capacidade" }
 }

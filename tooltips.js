@@ -12,8 +12,8 @@
  * invólucro. É carregado dinamicamente por app.js, como a régua.
  *
  * Diretrizes de redação (ver README): 1–3 frases; pt-BR sem jargão; opções
- * de piso trazem 1–2 exemplos; camadas indicam o teto de complexidade; o
- * texto acrescenta contexto, não duplica o descritor da nota.
+ * do ato vinculado trazem 1–2 exemplos; camadas indicam o piso de complexidade
+ * que estabelecem; o texto acrescenta contexto, não duplica o descritor da nota.
  */
 
 window.TOOLTIPS = {
@@ -68,26 +68,39 @@ window.TOOLTIPS = {
   camada_uso_local:
     'Solução vive dentro de um único órgão, sem precisar ser compartilhada. '
     + 'Configuração, template ou automação isolada. Mantida pelo próprio órgão, '
-    + 'sem envolvimento do PEN. Estabelece teto 4 (baixa complexidade) para o '
+    + 'sem envolvimento do PEN. Estabelece piso 1 (complexidade mínima) para o '
     + 'critério Complexidade.',
   camada_grupo:
     'Solução compartilhada entre alguns órgãos do mesmo segmento ou interesse '
     + 'comum, sem virar produto formal do PEN. Mantida pelo desenvolvedor '
     + 'original; o PEN monitora crescimento e media conflitos eventuais. '
-    + 'Estabelece teto 3 para Complexidade.',
+    + 'Estabelece piso 2 para Complexidade.',
   camada_vitrine:
     'Solução já difundida, com versionamento e documentação, instalável por '
     + 'quem quiser. Mantida pelo desenvolvedor, com PEN supervisionando suporte '
     + 'e oferecendo apoio ocasional em escala. Não modifica o SEI nem o PEN. '
-    + 'Estabelece teto 3 para Complexidade (2 em vitrines exigentes).',
+    + 'Estabelece piso 2 para Complexidade.',
   camada_modulo_pen:
     'Solução vira módulo oficial do ProcessoEletrônicoNacional, integrado ao '
     + 'SEI por interfaces oficiais. Mantida pelo PEN, ou homologada e mantida '
     + 'externamente pelo desenvolvedor original com SLA acordado. Estabelece '
-    + 'teto 1 para Complexidade.',
+    + 'piso 3 para Complexidade.',
   camada_core_sei:
     'Solução modifica o código-fonte do próprio SEI. Exige revisão da DTGES, '
     + 'atenção ao Art. 24 do Decreto 8.539/15 (exclusividade do código-fonte) e '
-    + 'testes amplos de regressão. Estabelece nota fixa 0 para Complexidade '
-    + '(sem possibilidade de override).',
+    + 'testes amplos de regressão. Trava a Complexidade em 4 (altíssima), sem '
+    + 'possibilidade de override.',
+
+  criterio_complexidade:
+    'Esforço de entrega da solução (0 = trivial, 4 = altíssima). A camada '
+    + 'validada estabelece o piso: por ser daquela camada, espera-se uma '
+    + 'complexidade mínima. Notas abaixo desse piso exigem justificativa '
+    + '(override) — é implausível, por exemplo, virar Módulo PEN com '
+    + 'complexidade baixa.',
+  criterio_risco_de_entrega:
+    'Risco de execução da própria demanda (0 = desprezível, 4 = crítico): '
+    + 'probabilidade de o desenvolvimento derrapar, de dependências externas '
+    + 'travarem, de incerteza técnica ou de quebrar algo que já funciona. É '
+    + 'diferente do risco do ato vinculado (falha de segurança, '
+    + 'indisponibilidade), que fica na triagem (Passo 2).',
 };

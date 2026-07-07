@@ -38,12 +38,14 @@ conscientes e decisões que merecem um segundo olhar.
    "ajuste manual" pós-carga de arquivo é ligeiramente diferente da pós-carga
    de tópico.
 
-5. **Descritores e score dos exemplos são *snapshots*.** Os arquivos em
-   `exemplos/*.json` carregam o texto do `descritor` e o `score` congelados.
-   Se a régua mudar (novo `versaoRegua`), o formulário mostrará o descritor
-   **atual** para aquela nota (vem de `regua.js`), mas o campo `descritor` do
-   arquivo continuará o antigo. É o comportamento esperado de uma memória
-   (instantâneo), só convém ter em mente ao revisar exemplos.
+5. **Descritores e par valor × esforço dos exemplos são *snapshots*.** Os
+   arquivos em `exemplos/*.json` carregam o texto do `descritor` e os campos
+   `valor`/`esforco`/`quadrante` congelados. Ao **carregar** um exemplo, a
+   calculadora reidrata só as notas (`criterios[].nota`) e recomputa o par e o
+   quadrante a partir da régua atual — os campos congelados do arquivo são
+   documentação. Se a régua mudar (novo `versaoRegua`), o formulário mostra o
+   descritor **atual** para aquela nota; o `descritor` do arquivo continua o
+   antigo. Comportamento esperado de uma memória (instantâneo).
 
 6. **Stepper no salto do ato vinculado.** Quando o ato vinculado (piso) salta
    da triagem direto para a memória, o stepper marca os passos 3–5 como "concluídos"
@@ -55,11 +57,12 @@ conscientes e decisões que merecem um segundo olhar.
    navegadores atuais, mas em navegadores antigos esses realces somem (o foco
    nativo do `<input>` permanece). Dependência implícita a registrar.
 
-8. **`piso` (ato vinculado) ignora notas e fixa o score em 20.** Sob ato
-   vinculado a demanda recebe score fixo de **20** (prioridade absoluta) e os
-   cinco critérios não são pontuados. Se o avaliador tiver pontuado antes de
-   marcar o gatilho, essas notas não são preservadas. `pisoJustificativa`
-   registra só o **primeiro** gatilho marcado (entre os cinco:
+8. **Ato vinculado sai da matriz discricionária.** Sob ato vinculado a demanda
+   fica **fora da matriz** (sem par valor × esforço nem quadrante) e é
+   encaminhada direto ao topo da fila; os cinco critérios não são pontuados. Se
+   o avaliador tiver pontuado antes de marcar o gatilho, essas notas não são
+   preservadas na memória. `pisoJustificativa`/`piso_obrigatorio` registram só o
+   **primeiro** gatilho marcado (entre os cinco:
    `obrigacaoLegal`, `determinacaoControle`, `seguranca`, `sustentacao`,
    `continuidade`); se mais de um for marcado, os demais ficam apenas em
    `triagem.gatilhos[]`/`filtros.pisoObrigatorio.gatilhos`.
@@ -80,8 +83,8 @@ conscientes e decisões que merecem um segundo olhar.
     direita no futuro, o popover pode vazar (não há reposicionamento dinâmico —
     seria um próximo passo). O conteúdo vive em `tooltips.js` (faz o papel do
     `tooltips.json` pedido — `.js`+`<script>` pelo mesmo motivo de `file://` da
-    régua) e é **versionado manualmente**: ao mudar a régua (camadas, tetos,
-    piso), lembrar de revisar `tooltips.js`, pois não há sincronização em runtime
+    régua) e é **versionado manualmente**: ao mudar a régua (camadas, pisos,
+    critérios), lembrar de revisar `tooltips.js`, pois não há sincronização em runtime
     (fora de escopo do MVP). A carga é não-fatal: se `tooltips.js` falhar, os
     ícones simplesmente não aparecem e o fluxo segue.
 
@@ -93,9 +96,9 @@ conscientes e decisões que merecem um segundo olhar.
    reduzir risco ao inserir/reordenar passos.
 
 2. **Override modelado como genérico, mas só vale para Complexidade.**
-   `estado.override`, `atualizarTetoComplexidade()` e a montagem de
+   `estado.override`, `atualizarPisoComplexidade()` e a montagem de
    `overrides[]` assumem o critério `complexidade`. Se outro critério ganhar
-   teto no futuro, será preciso generalizar (hoje o array de overrides sugere
+   piso no futuro, será preciso generalizar (hoje o array de overrides sugere
    uma generalidade que o código não tem).
 
 3. **`app.js` está grande (~1k linhas) e multifunção.** Faz fluxo, regras,
@@ -119,10 +122,10 @@ conscientes e decisões que merecem um segundo olhar.
    *placeholder* do campo de URL; a base real é derivada da URL colada. Quando
    embarcar, decidir se a base passa a ser fixa (config) ou continua derivada.
 
-2. **Filtro 0+0 reporta o score cheio** (ex.: 8/20), não 0. Foi uma decisão
-   consciente (mostrar o "score parcial até onde o fluxo parou") e o usuário
+2. **Filtro 0+0 reporta o valor parcial** (ex.: 3/12), não 0. Foi uma decisão
+   consciente (mostrar o "valor parcial até onde o fluxo parou") e o usuário
    pediu para manter. Revisitar se a leitura desejada for "demanda barrada =
-   score 0".
+   valor 0".
 
 3. **`regua.js` faz o papel de `regua.json`.** A escolha por `.js`+`<script>`
    (em vez de `.json`+`fetch`) é por causa do `file://`. Se o produto final

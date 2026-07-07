@@ -1,17 +1,18 @@
 {
-  "_comentario": "Ato vinculado (piso) acionado por DETERMINAÇÃO de órgão de controle — distinta de recomendação (que ficaria no critério Impacto institucional). pisoJustificativa='determinacaoControle', score fixo 20, critérios sem nota.",
-  "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-23T10:05:00-03:00",
+  "_comentario": "Ato vinculado (piso obrigatório) acionado por DETERMINAÇÃO de órgão de controle — distinta de recomendação (que ficaria no critério Impacto institucional). piso_obrigatorio='determinacaoControle'; fora da matriz discricionária; critérios sem nota; sem par valor × esforço nem quadrante.",
+  "versaoRegua": "2.0.0",
+  "timestamp": "2026-07-07T10:05:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "preenchimento manual",
   "urlTopico": null,
   "camposAjustadosManualmente": [],
   "pisoAcionado": true,
   "pisoJustificativa": "determinacaoControle",
+  "piso_obrigatorio": "determinacaoControle",
   "desfecho": {
     "codigo": "piso",
     "rotulo": "Ato vinculado",
-    "mensagem": "Demanda enquadrada como ato vinculado — score fixo de 20 (prioridade absoluta). A demanda entra na fila já no topo do ranking."
+    "mensagem": "Demanda enquadrada como ato vinculado — fora da matriz discricionária. Encaminhamento direto ao topo da fila, independentemente do par valor × esforço."
   },
   "identificacao": {
     "titulo": "Trilha de auditoria de acessos a processos sigilosos (determinação do TCU)",
@@ -35,19 +36,22 @@
   },
   "curadoria": {
     "camadaValidada": { "valor": "modulo-pen", "rotulo": "Módulo PEN" },
-    "tetoComplexidade": 1
+    "pisoComplexidade": 3
   },
   "criterios": [
-    { "chave": "impacto", "rotulo": "Impacto institucional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "orgaos", "rotulo": "Quantidade de órgãos afetados", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "ganho", "rotulo": "Ganho operacional", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "complexidade", "rotulo": "Complexidade", "invertido": true, "nota": null, "descritor": null, "observacao": "" },
-    { "chave": "risco", "rotulo": "Risco", "invertido": true, "nota": null, "descritor": null, "observacao": "" }
+    { "chave": "impacto", "rotulo": "Impacto institucional", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "orgaos", "rotulo": "Quantidade de órgãos afetados", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "ganho", "rotulo": "Ganho operacional", "bloco": "valor", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "complexidade", "rotulo": "Complexidade", "bloco": "esforco", "invertido": false, "nota": null, "descritor": null, "observacao": "" },
+    { "chave": "risco", "rotulo": "Risco de entrega", "bloco": "esforco", "invertido": false, "nota": null, "descritor": null, "observacao": "" }
   ],
   "filtros": {
     "pisoObrigatorio": { "acionado": true, "passo": 2, "gatilhos": ["Determinação de órgão de controle"] },
     "convenienciaLocal": { "acionado": false, "passo": 5 }
   },
   "overrides": [],
-  "score": { "total": 20, "maximo": 20, "texto": "20/20" }
+  "override_complexidade": null,
+  "valor": null,
+  "esforco": null,
+  "quadrante": null
 }
