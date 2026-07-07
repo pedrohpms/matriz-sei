@@ -38,7 +38,7 @@ Tópicos antigos ou fora deste formato entram pelo preenchimento manual.
 
 | Resposta no corpo | Valor |
 |---|---|
-| Quero melhorar algo que já existe, mas pode ficar melhor | `Melhoria` |
+| Quero melhorar algo que já existe, mas pode ficar melhor | `Aperfeiçoamento` |
 | Quero acrescentar uma funcionalidade que ainda não existe no SEI | `Evolutiva` |
 | Quero mudar uma regra, um padrão ou uma orientação de como o SEI deve ser usado | `Normativa` |
 

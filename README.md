@@ -181,7 +181,7 @@ Dependências saiu do Form Template — a GPSEI coleta na curadoria.
 
 > **Trilha Corretiva.** A trilha Corretiva existe no modelo de governança,
 > mas é tratada via Central de Atendimento, **fora desta calculadora**. Por
-> isso o Passo 1 oferece apenas Melhoria, Evolutiva e Normativa.
+> isso o Passo 1 oferece apenas Aperfeiçoamento, Evolutiva e Normativa.
 
 ### Configuração e CORS
 
