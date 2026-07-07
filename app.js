@@ -47,7 +47,7 @@ const NATUREZAS = [
 ];
 
 // Corretiva é tratada via Central de Atendimento, fora desta calculadora.
-const TRILHAS = ['Melhoria', 'Evolutiva', 'Normativa'];
+const TRILHAS = ['Aperfeiçoamento', 'Evolutiva', 'Normativa'];
 
 // Camadas em ordem crescente de complexidade/abrangência.
 const CAMADAS = [
@@ -718,7 +718,7 @@ const TRAD_NATUREZA = {
   'Uma prática em uso, a difundir': 'pratica',
 };
 const TRAD_TRILHA = {
-  'Quero melhorar algo que já existe, mas pode ficar melhor': 'Melhoria',
+  'Quero melhorar algo que já existe, mas pode ficar melhor': 'Aperfeiçoamento',
   'Quero acrescentar uma funcionalidade que ainda não existe no SEI': 'Evolutiva',
   'Quero mudar uma regra, um padrão ou uma orientação de como o SEI deve ser usado': 'Normativa',
 };

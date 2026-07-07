@@ -18,7 +18,7 @@
     "descricao": "Permitir assinar o documento atualmente aberto por um atalho de teclado, sem precisar abrir o menu de assinatura.",
     "linkPublico": "",
     "natureza": { "valor": "problema", "rotulo": "Problema a resolver" },
-    "trilha": "Melhoria",
+    "trilha": "Aperfeiçoamento",
     "camadaProposta": { "valor": "uso-local", "rotulo": "Uso local" },
     "dependencias": "",
     "evidencia": "Sugerido por usuários em treinamento interno."
