@@ -15,26 +15,48 @@
  *   - `criterios` é um array; o app monta o estado e a interface a partir dele.
  *   - `chave` é o identificador estável de cada critério (não traduzir/renomear
  *     sem alinhar com app.js - algumas regras futuras referenciam essas chaves).
- *   - `invertido: true` indica escala invertida (nota 4 = melhor cenário).
+ *   - `bloco` agrupa o critério em 'valor' (0-12, ordena a fila) ou 'esforco'
+ *     (0-8, orienta tratamento e desempata). Todos os critérios crescem no
+ *     sentido natural (não há mais escala invertida).
  *   - `descritores[n]` é o texto canônico da nota n (índice 0..4 = nota 0..4),
- *     SEMPRE indexado pela nota, independentemente da ordem de redação.
+ *     SEMPRE indexado pela nota.
+ *   - `pisosComplexidade` e `cortesPlotagem` são calibragens revisáveis, aqui
+ *     nos dados para ajuste fácil sem tocar em app.js.
  */
 
 window.REGUA = {
-  // Versão semver da régua (texto dos critérios). Começa em 1.0.0; suba ao
-  // alterar descritores. Exposta na memória de cálculo como `versaoRegua`.
-  // 1.1.0: camadas renomeadas (cluster→grupo, marketplace→vitrine) nos
-  // descritores e remoção do exemplo MCTI da nota 2 de Impacto institucional.
-  // 1.2.0: introdutório do Impacto institucional reformulado (aspectos em
-  // lista + observações sobre piso vinculado) e nota 4 ajustada (sem "prestes
-  // a virar determinação").
-  versao: '1.2.0',
-  atualizadoEm: '2026-06-23',
+  // Versão semver da régua. Suba ao alterar descritores/estrutura.
+  //  1.1.0: camadas renomeadas (cluster→grupo, marketplace→vitrine).
+  //  1.2.0: introdutório do Impacto institucional reformulado.
+  //  2.0.0 (Patch 5): soma única 0-20 substituída pelo par valor (0-12) ×
+  //         esforço de entrega (0-8); escalas desinvertidas (todos os critérios
+  //         crescem no sentido natural); "Risco" → "Risco de entrega"; o teto de
+  //         complexidade por camada virou PISO (mínimo); plotagem em quadrantes.
+  versao: '2.0.0',
+  atualizadoEm: '2026-07-07',
+
+  // Piso de complexidade por camada. Escala natural (0 = trivial, 4 = altíssima):
+  // a camada estabelece a complexidade MÍNIMA plausível. Nota ABAIXO do piso
+  // exige justificativa (override). Core SEI trava em 4 (sem override).
+  // Calibragem revisável — editável aqui sem tocar em app.js.
+  pisosComplexidade: {
+    'uso-local': 1,
+    'grupo': 2,
+    'vitrine': 2,
+    'modulo-pen': 3,
+    'core-sei': 4,
+  },
+
+  // Convenção de corte da plotagem valor × esforço (revisável).
+  // valor >= corte.valor  → valor alto;  esforco >= corte.esforco → esforço alto.
+  cortesPlotagem: { valor: 6, esforco: 4 },
 
   criterios: [
+    /* ---------- Bloco VALOR (0-12): ordena a prioridade ---------- */
     {
       chave: 'impacto',
       rotulo: 'Impacto institucional',
+      bloco: 'valor',
       invertido: false,
       // descricao estruturada: o app renderiza `aspectos` como bullets e
       // `observacoes` como avisos destacados (os demais critérios usam string).
@@ -90,6 +112,7 @@ window.REGUA = {
     {
       chave: 'orgaos',
       rotulo: 'Quantidade de órgãos afetados',
+      bloco: 'valor',
       invertido: false,
       descricao:
         'Quantos entes da esfera federal se beneficiam. Em ambiguidade entre '
@@ -113,6 +136,7 @@ window.REGUA = {
     {
       chave: 'ganho',
       rotulo: 'Ganho operacional',
+      bloco: 'valor',
       invertido: false,
       descricao:
         'Ganho típico para um órgão que adota a solução, desacoplado do '
@@ -135,52 +159,61 @@ window.REGUA = {
       ],
     },
 
+    /* ---------- Bloco ESFORÇO DE ENTREGA (0-8): orienta e desempata ---------- */
     {
       chave: 'complexidade',
       rotulo: 'Complexidade',
-      invertido: true, // 4 = baixa, 0 = altíssima
+      bloco: 'esforco',
+      invertido: false, // 0 = trivial, 4 = altíssima (escala natural)
+      tooltip: 'criterio_complexidade',
       descricao:
-        'A camada validada na curadoria estabelece o teto da nota; outros '
-        + 'fatores (áreas envolvidas, dependências, integrações externas, revisão '
-        + 'jurídica ou normativa) puxam a nota para baixo.',
+        'A camada validada na curadoria estabelece o piso da nota (complexidade '
+        + 'mínima plausível); áreas envolvidas, dependências, integrações '
+        + 'externas e revisão jurídica ou normativa elevam a nota. '
+        + 'Escala natural: 0 = trivial, 4 = altíssima.',
       descritores: [
         // 0
-        'Altíssima. Core SEI ou mudança estrutural; revisão jurídica/normativa '
-        + 'formal; prazo e escopo incertos.',
+        'Trivial. Camada de uso local; uma área envolvida; sem dependências; '
+        + 'entrega em dias.',
         // 1
-        'Alta. Módulo PEN ou mudança coordenada em várias frentes; dependências '
-        + 'relevantes; entrega em vários meses.',
+        'Baixa. Grupo ou vitrine simples; uma a duas áreas; entrega em '
+        + 'semanas.',
         // 2
         'Média. Vitrine exigente ou extensão do PEN; duas a três áreas; '
         + 'dependências geríveis; possível revisão jurídica leve; entrega em meses.',
         // 3
-        'Baixa. Grupo ou vitrine simples; uma a duas áreas; entrega em '
-        + 'semanas.',
+        'Alta. Módulo PEN ou mudança coordenada em várias frentes; dependências '
+        + 'relevantes; entrega em vários meses.',
         // 4
-        'Trivial. Camada de uso local; uma área envolvida; sem dependências; '
-        + 'entrega em dias.',
+        'Altíssima. Core SEI ou mudança estrutural; revisão jurídica/normativa '
+        + 'formal; prazo e escopo incertos.',
       ],
     },
 
     {
       chave: 'risco',
-      rotulo: 'Risco',
-      invertido: true, // 4 = baixo, 0 = crítico
+      rotulo: 'Risco de entrega',
+      bloco: 'esforco',
+      invertido: false, // 0 = desprezível, 4 = crítico (escala natural)
+      tooltip: 'criterio_risco_de_entrega',
       descricao:
-        'Chance de a entrega quebrar algo que já funciona, gerar dívida técnica '
-        + 'ou criar incompatibilidade.',
+        'Risco de execução da própria entrega: chance de o desenvolvimento '
+        + 'derrapar, quebrar algo que já funciona, gerar dívida técnica ou criar '
+        + 'incompatibilidade. Distinto da falha de segurança ou da '
+        + 'indisponibilidade do ato vinculado (essas são triagem, Passo 2). '
+        + 'Escala natural: 0 = desprezível, 4 = crítico.',
       descritores: [
         // 0
-        'Crítico. Pode quebrar funcionalidade ampla; criar incompatibilidade; '
-        + 'gerar dívida difícil de desfazer.',
+        'Desprezível. Mudança isolada e reversível.',
         // 1
-        'Alto. Mexe em algo crítico ou amplamente usado; reversão custosa.',
+        'Baixo. Efeito colateral improvável; reversão simples.',
         // 2
         'Médio. Regressão plausível em pontos identificáveis; mitigável com teste.',
         // 3
-        'Baixo. Efeito colateral improvável; reversão simples.',
+        'Alto. Mexe em algo crítico ou amplamente usado; reversão custosa.',
         // 4
-        'Desprezível. Mudança isolada e reversível.',
+        'Crítico. Pode quebrar funcionalidade ampla; criar incompatibilidade; '
+        + 'gerar dívida difícil de desfazer.',
       ],
     },
   ],

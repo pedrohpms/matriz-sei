@@ -1,13 +1,14 @@
 {
-  "_comentario": "Alta prioridade e alcance máximo (toda a APF), mas caro e arriscado. Estressa o teto de complexidade da camada Core SEI: complexidade fica fixada em 0 (sem override possível). Impacto e ganho no topo, complexidade e risco no fundo. Score 13/20.",
-  "versaoRegua": "1.2.0",
-  "timestamp": "2026-06-20T14:40:00-03:00",
+  "_comentario": "Alta prioridade e alcance máximo (toda a APF), mas cara e arriscada. Camada Core SEI trava a Complexidade em 4 (altíssima), sem override. Valor no topo (12/12) e Esforço de entrega alto (7/8) => quadrante 'Aposta estratégica'.",
+  "versaoRegua": "2.0.0",
+  "timestamp": "2026-07-07T14:40:00-03:00",
   "avaliador": "Comitê de Priorização",
   "origemDosDados": "preenchimento manual",
   "urlTopico": null,
   "camposAjustadosManualmente": [],
   "pisoAcionado": false,
   "pisoJustificativa": null,
+  "piso_obrigatorio": null,
   "desfecho": {
     "codigo": "normal",
     "rotulo": "Avaliação completa pela matriz",
@@ -35,12 +36,13 @@
   },
   "curadoria": {
     "camadaValidada": { "valor": "core-sei", "rotulo": "Core SEI" },
-    "tetoComplexidade": 0
+    "pisoComplexidade": 4
   },
   "criterios": [
     {
       "chave": "impacto",
       "rotulo": "Impacto institucional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 4,
       "descritor": "Dimensão crítica dentro do discricionário: programa prioritário de governo com prazo e cobrança; recomendação reiterada de controle sob forte pressão (sem ainda configurar determinação); compromisso público com sociedade civil cobrado em conselho; risco reputacional concreto.",
@@ -49,6 +51,7 @@
     {
       "chave": "orgaos",
       "rotulo": "Quantidade de órgãos afetados",
+      "bloco": "valor",
       "invertido": false,
       "nota": 4,
       "descritor": "Múltiplos segmentos, ou transversal à esfera federal (>150 órgãos).",
@@ -57,6 +60,7 @@
     {
       "chave": "ganho",
       "rotulo": "Ganho operacional",
+      "bloco": "valor",
       "invertido": false,
       "nota": 4,
       "descritor": "Ganho estrutural: remove uma etapa inteira, um contorno manual obrigatório, ou uma fonte sistemática de erro.",
@@ -65,16 +69,18 @@
     {
       "chave": "complexidade",
       "rotulo": "Complexidade",
-      "invertido": true,
-      "nota": 0,
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 4,
       "descritor": "Altíssima. Core SEI ou mudança estrutural; revisão jurídica/normativa formal; prazo e escopo incertos.",
-      "observacao": "Camada Core SEI fixa a complexidade em 0."
+      "observacao": "Camada Core SEI trava a complexidade em 4."
     },
     {
       "chave": "risco",
-      "rotulo": "Risco",
-      "invertido": true,
-      "nota": 1,
+      "rotulo": "Risco de entrega",
+      "bloco": "esforco",
+      "invertido": false,
+      "nota": 3,
       "descritor": "Alto. Mexe em algo crítico ou amplamente usado; reversão custosa.",
       "observacao": ""
     }
@@ -84,5 +90,8 @@
     "convenienciaLocal": { "acionado": false, "passo": 5 }
   },
   "overrides": [],
-  "score": { "total": 13, "maximo": 20, "texto": "13/20" }
+  "override_complexidade": null,
+  "valor": { "total": 12, "maximo": 12, "texto": "12/12" },
+  "esforco": { "total": 7, "maximo": 8, "texto": "7/8" },
+  "quadrante": { "codigo": "aposta", "rotulo": "Aposta estratégica" }
 }
