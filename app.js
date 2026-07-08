@@ -1334,8 +1334,8 @@ function montarMemoria() {
 }
 
 // SVG (string) da plotagem valor × esforço. String pura para reuso: render no
-// DOM (Passo 6), download e embutido no Markdown. Vazio sob ato vinculado
-// (a demanda não tem posição no quadrante — antecede a régua).
+// DOM (Passo 6) e nos downloads (SVG direto; PNG via svgParaPngBlob). Vazio sob
+// ato vinculado (a demanda não tem posição no quadrante — antecede a régua).
 function svgPlotagemString(m) {
   if (!m || !m.valor || !m.esforco) return '';
 
@@ -1423,6 +1423,44 @@ function svgPlotagemString(m) {
     + `</svg>`;
 }
 
+// Rasteriza o SVG da plotagem (string) em PNG (Blob) via canvas. Útil para
+// anexar a plotagem como imagem (o SVG serializado, colado num fórum como
+// Discourse, apareceria como código, não como gráfico). Fundo branco (o SVG é
+// transparente fora dos quadrantes) e escala 2x para nitidez. Resolve com
+// { blob, largura, altura }. O SVG é self-contained, então o canvas não fica
+// "tainted" e toBlob funciona.
+function svgParaPngBlob(svgString, escala = 2) {
+  return new Promise((resolve, reject) => {
+    const vb = svgString.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/);
+    const w = vb ? Math.round(Number(vb[1])) : 600;
+    const h = vb ? Math.round(Number(vb[2])) : 400;
+    // width/height explícitos: um SVG só com viewBox pode carregar com tamanho
+    // intrínseco 0 numa <img>, e o canvas desenharia vazio.
+    const svgDim = svgString.replace('<svg ', `<svg width="${w}" height="${h}" `);
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgDim);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = w * escala;
+        canvas.height = h * escala;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => (blob ? resolve({ blob, largura: w, altura: h }) : reject(new Error('canvas.toBlob vazio'))),
+          'image/png',
+        );
+      } catch (e) {
+        reject(e);
+      }
+    };
+    img.onerror = () => reject(new Error('falha ao carregar o SVG como imagem'));
+    img.src = url;
+  });
+}
+
 // Markdown estruturado, para colar no Discourse/ParticiPEN.
 function memoriaParaMarkdown(m) {
   const ni = (v) => (v && String(v).trim() ? v : '(não informado)');
@@ -1478,7 +1516,7 @@ function memoriaParaMarkdown(m) {
 
   // Sob ato vinculado não há pontuação: a seção de critérios dá lugar a um
   // bloco de enquadramento; do contrário, sai o par valor × esforço, o
-  // quadrante e o SVG da plotagem embutido.
+  // quadrante e uma nota da plotagem (a imagem sai pelos botões PNG/SVG).
   const rodapeMeta =
     `- **Timestamp (ISO 8601):** ${m.timestamp}\n`
     + `- **Avaliador:** ${m.avaliador}\n`
@@ -1496,10 +1534,11 @@ ${rodapeMeta}`;
     const overrideLinha = m.override_complexidade
       ? `\n- **Override do piso de complexidade:** ${m.override_complexidade}`
       : '';
-    const svg = svgPlotagemString(m);
-    const plotagem = svg
-      ? `\n\n## Plotagem em quadrantes\n<!-- svg-plotagem -->\n\`\`\`xml\n${svg}\n\`\`\`\n`
-        + `_Linhas de corte: valor ≥ ${CORTES.valor} alto, esforço ≥ ${CORTES.esforco} alto (convenção revisável)._`
+    // Não embutimos o SVG serializado: colado num fórum (Discourse) ele
+    // apareceria como código, não como gráfico. Em vez disso, uma nota curta;
+    // a imagem sai pelos botões "Baixar como PNG/SVG".
+    const plotagem = m.quadrante
+      ? `\n\n_Plotagem: quadrante ${m.quadrante.rotulo} (linhas de corte valor ≥ ${CORTES.valor}, esforço ≥ ${CORTES.esforco}). Anexe a imagem com "Baixar como PNG" (ou "Baixar como SVG")._`
       : '';
     corpoFinal = `## Critérios
 
@@ -1673,6 +1712,30 @@ function baixarSVG() {
   flash('SVG baixado: ' + nome, 4000);
 }
 
+// Exporta a plotagem como PNG (rasterizado do SVG), nome baseado no título.
+async function baixarPNG() {
+  if (!memoriaAtual) gerarMemoria();
+  if (memoriaAtual.desfecho.codigo === 'piso') {
+    flash('Ato vinculado não tem posição na matriz — sem plotagem para exportar.', 4000);
+    return;
+  }
+  try {
+    const { blob } = await svgParaPngBlob(svgPlotagemString(memoriaAtual));
+    const nome = `plotagem-${slugify(memoriaAtual.identificacao.titulo)}.png`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    flash('PNG baixado: ' + nome, 4000);
+  } catch (e) {
+    flash('Não foi possível gerar o PNG da plotagem.', 4000);
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Ligações de eventos
  * ------------------------------------------------------------------ */
@@ -1780,6 +1843,7 @@ function ligarEventos() {
   // Passo 6 — saídas
   $('#btn-copiar-md').addEventListener('click', copiarMarkdown);
   $('#btn-baixar-json').addEventListener('click', baixarJSON);
+  $('#btn-baixar-png').addEventListener('click', baixarPNG);
   $('#btn-baixar-svg').addEventListener('click', baixarSVG);
   $('#btn-regenerar').addEventListener('click', () => { gerarMemoria(); atualizarDesfechoMemoria(); });
 }

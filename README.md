@@ -67,9 +67,11 @@ No Passo 1 você pode:
 - **Carregar exemplo ou memória salva (JSON)** — selecione um arquivo de
   `exemplos/` (ou qualquer memória que você exportou) e o fluxo é atualizado.
 
-Ao final (Passo 6), a calculadora mostra a **plotagem em quadrantes** (SVG) da
-demanda e permite **Copiar markdown** (para colar no fórum, já com o SVG
-embutido), **Baixar JSON** (para arquivar/processar) ou **Baixar como SVG**.
+Ao final (Passo 6), a calculadora mostra a **plotagem em quadrantes** da
+demanda e permite **Copiar markdown** (para colar no fórum), **Baixar JSON**
+(para arquivar/processar), **Baixar como PNG** ou **Baixar como SVG**. A
+plotagem não é embutida no Markdown como SVG — colada num fórum como o
+Discourse, apareceria como código, não como imagem; anexe o PNG.
 
 ### Como se lê a fila lexicográfica pública
 
