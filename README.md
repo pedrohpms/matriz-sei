@@ -154,7 +154,7 @@ rastrear sob qual régua cada avaliação foi feita.
 Vários campos têm um ícone **ⓘ** ao lado que abre um *popover* discreto com
 contexto: as opções de **Natureza** (Passo 1), os campos **Dependências** e
 **Evidência** (Passo 1), as cinco opções de **ato vinculado** (Passo 2), as
-cinco **camadas** (Passo 3) e, no Passo 5 (Avaliação de risco), os critérios
+cinco **camadas** (Passo 3) e, no Passo 5 (Avaliação de esforço), os critérios
 **Complexidade** e **Risco de entrega** (para distinguir o esforço de entrega
 do risco do ato vinculado). O tooltip abre por *hover*, foco via Tab e *tap* (mobile),
 e fecha com ESC ou clique fora; o leitor de tela lê o conteúdo via
