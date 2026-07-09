@@ -8,7 +8,7 @@ Cada caso na matriz discricionária produz um par **Valor** (0–12, ordena a fi
 |---|---|---|---|
 | [`caso-1-uso-local.json`](caso-1-uso-local.json) | Fluxo típico: melhoria local, barata e segura, sem filtros nem override. | Avaliação completa | V 3/12 · E 2/8 → Preenchimento de capacidade |
 | [`caso-2-evolutiva-transversal.json`](caso-2-evolutiva-transversal.json) | Alta prioridade transversal (toda a APF); camada **Core SEI** trava a complexidade em 4. | Avaliação completa | V 12/12 · E 7/8 → Aposta estratégica |
-| [`caso-3-filtro-0-0.json`](caso-3-filtro-0-0.json) | Filtro automático **0+0** (impacto 0 e ganho 0) encerra como conveniência local. | Conveniência local | V 0/12 · E 1/8 → (fora da fila pelo filtro) |
+| [`caso-3-preenchimento.json`](caso-3-preenchimento.json) | Baixo valor e baixo esforço → quadrante **Preenchimento de capacidade** (mudança cosmética, local e barata). | Avaliação completa | V 0/12 · E 1/8 → Preenchimento de capacidade |
 | [`caso-4-via-url.json`](caso-4-via-url.json) | Memória gerada a partir de um **tópico do ParticiPEN** (`origemDosDados` = tópico Discourse). Camada **Módulo PEN**. | Avaliação completa | V 10/12 · E 3/8 → Janela de oportunidade |
 | [`caso-5-piso-obrigatorio.json`](caso-5-piso-obrigatorio.json) | **Ato vinculado** por falha de segurança: fora da matriz, pula a pontuação (`pisoAcionado: true`, `piso_obrigatorio: "seguranca"`). | Ato vinculado | fora da matriz discricionária |
 | [`caso-6-piso-determinacao-controle.json`](caso-6-piso-determinacao-controle.json) | **Ato vinculado** por determinação de órgão de controle (vinculante, distinta de recomendação): `piso_obrigatorio: "determinacaoControle"`. | Ato vinculado | fora da matriz discricionária |
