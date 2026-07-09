@@ -39,7 +39,7 @@ oportunidade* (valor alto, esforço baixo), *aposta estratégica* (valor alto,
 esforço alto), *preenchimento de capacidade* (valor baixo, esforço baixo) e
 *revisão e devolutiva* (valor baixo, esforço alto).
 
-Três regras estruturam o fluxo:
+Duas regras estruturam o fluxo:
 
 - **Piso de complexidade pela camada** — a camada validada (uso local →
   grupo → vitrine → módulo PEN → core SEI) estabelece a nota **mínima** de
@@ -52,8 +52,10 @@ Três regras estruturam o fluxo:
   topo da fila, independentemente do par valor × esforço. É um ato vinculado: a
   norma manda, sem juízo discricionário (em contraste com o Impacto
   institucional, que é discricionário).
-- **Filtro 0+0 (Passo 5)** — nota 0 em impacto **e** em ganho encerra a
-  demanda como conveniência estritamente local.
+
+Não há filtro que "tire da fila": o **quadrante** já orienta o tratamento —
+baixo valor + alto esforço cai em *revisão e devolutiva* (revisar escopo ou
+tratar localmente), baixo + baixo em *preenchimento de capacidade*.
 
 ## Como usar
 
@@ -113,12 +115,12 @@ O **Baixar JSON** produz um arquivo `memoria-{slug-do-título}-{timestamp}.json`
 | `pisoAcionado` | `true` quando o ato vinculado foi acionado (fora da matriz discricionária). |
 | `pisoJustificativa` | Gatilho do ato vinculado que enquadrou a demanda: `"obrigacaoLegal"`, `"determinacaoControle"`, `"seguranca"`, `"sustentacao"`, `"continuidade"` (ou `null`). |
 | `piso_obrigatorio` | Subtipo do ato vinculado (mesma chave de `pisoJustificativa`), ou `null`. |
-| `desfecho` | `{ codigo, rotulo, mensagem }` — `normal`, `piso` ou `conveniencia-local`. |
+| `desfecho` | `{ codigo, rotulo, mensagem }` — `normal` ou `piso` (ato vinculado). |
 | `identificacao` | `titulo`, `descricao`, `linkPublico`, `natureza {valor,rotulo}`, `trilha`, `camadaProposta {valor,rotulo}`, `dependencias`, `evidencia`. |
 | `triagem` | `pisoAcionado` e `gatilhos[]` (`chave`, `rotulo`, `marcado`). |
 | `curadoria` | `camadaValidada {valor,rotulo}` e `pisoComplexidade`. |
 | `criterios[]` | Por critério: `chave`, `rotulo`, `bloco` (`valor`/`esforco`), `invertido`, `nota`, `descritor`, `observacao`. Sob ato vinculado, `nota`/`descritor` ficam `null` (sem pontuação). |
-| `filtros` | `pisoObrigatorio {acionado,passo,gatilhos}` e `convenienciaLocal {acionado,passo}`. |
+| `filtros` | `pisoObrigatorio {acionado,passo,gatilhos}` (ato vinculado). |
 | `overrides[]` | Overrides do piso: `criterio`, `rotulo`, `nota`, `piso`, `camada`, `justificativa`. |
 | `override_complexidade` | Justificativa do override do piso de complexidade (texto), ou `null`. |
 | `valor` | `{ total, maximo: 12, texto }` — bloco Valor. `null` sob ato vinculado. |
@@ -152,9 +154,9 @@ rastrear sob qual régua cada avaliação foi feita.
 Vários campos têm um ícone **ⓘ** ao lado que abre um *popover* discreto com
 contexto: as opções de **Natureza** (Passo 1), os campos **Dependências** e
 **Evidência** (Passo 1), as cinco opções de **ato vinculado** (Passo 2), as
-cinco **camadas** (Passo 3) e, no Passo 4, os critérios **Complexidade** e
-**Risco de entrega** (para distinguir o esforço de entrega do risco do ato
-vinculado). O tooltip abre por *hover*, foco via Tab e *tap* (mobile),
+cinco **camadas** (Passo 3) e, no Passo 5 (Avaliação de risco), os critérios
+**Complexidade** e **Risco de entrega** (para distinguir o esforço de entrega
+do risco do ato vinculado). O tooltip abre por *hover*, foco via Tab e *tap* (mobile),
 e fecha com ESC ou clique fora; o leitor de tela lê o conteúdo via
 `aria-describedby`.
 

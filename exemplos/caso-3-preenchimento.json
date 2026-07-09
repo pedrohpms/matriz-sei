@@ -1,7 +1,7 @@
 {
-  "_comentario": "Estressa o filtro automático 0+0 do Passo 5: nota 0 em impacto institucional E em ganho operacional encerra como conveniência estritamente local, mesmo com esforço baixo. Valor 0/12, Esforço 1/8; desfecho: conveniencia-local (o quadrante existe, mas o filtro tira a demanda da fila).",
+  "_comentario": "Baixo valor + baixo esforço = quadrante 'Preenchimento de capacidade' (encaixar quando houver folga). Mudança cosmética, local e barata. Substitui o antigo caso do 'filtro 0+0': esse filtro foi removido — agora o quadrante já classifica a demanda, sem tirá-la da fila. Valor 0/12, Esforço 1/8.",
   "versaoRegua": "2.0.0",
-  "timestamp": "2026-07-07T15:05:00-03:00",
+  "timestamp": "2026-07-08T15:05:00-03:00",
   "avaliador": "Equipe GPSEI",
   "origemDosDados": "preenchimento manual",
   "urlTopico": null,
@@ -10,9 +10,9 @@
   "pisoJustificativa": null,
   "piso_obrigatorio": null,
   "desfecho": {
-    "codigo": "conveniencia-local",
-    "rotulo": "Conveniência estritamente local",
-    "mensagem": "Demanda tratada como conveniência estritamente local — não disputa fila, e é encaminhada à camada de uso local."
+    "codigo": "normal",
+    "rotulo": "Avaliação completa pela matriz",
+    "mensagem": "Avaliação completa pela matriz."
   },
   "identificacao": {
     "titulo": "Trocar a cor do cabeçalho do SEI no órgão X",
@@ -86,8 +86,7 @@
     }
   ],
   "filtros": {
-    "pisoObrigatorio": { "acionado": false, "passo": 2, "gatilhos": [] },
-    "convenienciaLocal": { "acionado": true, "passo": 5 }
+    "pisoObrigatorio": { "acionado": false, "passo": 2, "gatilhos": [] }
   },
   "overrides": [],
   "override_complexidade": null,
