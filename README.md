@@ -57,6 +57,18 @@ Não há filtro que "tire da fila": o **quadrante** já orienta o tratamento —
 baixo valor + alto esforço cai em *revisão e devolutiva* (revisar escopo ou
 tratar localmente), baixo + baixo em *preenchimento de capacidade*.
 
+**Itens obrigatórios.** O botão Avançar só segue com o passo preenchido; se
+faltar algo, a calculadora lista o que falta. A **Triagem** é a única exceção
+(em branco = não é ato vinculado).
+
+| Passo | Obrigatório para avançar |
+|---|---|
+| 1. Identificação | Título, Natureza do input, Trilha, Camada proposta |
+| 2. Triagem | — (pode avançar em branco) |
+| 3. Curadoria | Camada validada |
+| 4. Avaliação de valor | os três critérios de valor |
+| 5. Avaliação de esforço | os dois critérios de esforço (+ justificativa, se a complexidade ficar abaixo do piso) |
+
 ## Como usar
 
 A calculadora foi montada em https://pedrohpms.github.io/matriz-sei/ para testes, com os arquivos mais atuais do projeto. Ela é navegável passo a passo, conforme detalhado abaixo.

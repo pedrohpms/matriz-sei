@@ -483,6 +483,7 @@ function renderBlocoCriterios(blocoChave, seletor) {
 
 function mostrarPasso(indice) {
   estado.passoAtual = Math.max(0, Math.min(TOTAL_PASSOS - 1, indice));
+  esconderValidacao(); // o aviso de pendências vale só para o passo em que surgiu
 
   $$('.passo').forEach((sec) => {
     const n = Number(sec.dataset.passo);
@@ -1808,11 +1809,52 @@ function ligarEventos() {
  * Navegação com regras de fluxo
  * ------------------------------------------------------------------ */
 
-// Avança respeitando: trava do override (Passo 4) e salto do piso (Passo 2).
+// Itens obrigatórios de cada passo antes de avançar. A Triagem (índice 1) é a
+// única exceção: pode avançar em branco (demanda que não é ato vinculado).
+// Devolve a lista de itens faltantes — vazia quando o passo está completo.
+function validarPasso(indice) {
+  const faltas = [];
+  if (indice === 0) {
+    const id = estado.identificacao;
+    if (!id.titulo.trim()) faltas.push('Título');
+    if (!id.natureza) faltas.push('Natureza do input');
+    if (!id.trilha) faltas.push('Trilha');
+    if (!id.camada) faltas.push('Camada proposta');
+  } else if (indice === 2) {
+    if (!estado.curadoria.camadaValidada) faltas.push('Camada validada');
+  } else if (indice === 3 || indice === 4) {
+    criteriosDoBloco(indice === 3 ? 'valor' : 'esforco').forEach((c) => {
+      if (typeof estado.pontuacao[c.chave] !== 'number') faltas.push(c.rotulo);
+    });
+  }
+  return faltas;
+}
+
+function mostrarValidacao(faltas) {
+  const el = $('#validacao-aviso');
+  if (!el) return;
+  el.textContent = 'Preencha antes de avançar: ' + faltas.join(', ') + '.';
+  el.hidden = false;
+}
+
+function esconderValidacao() {
+  const el = $('#validacao-aviso');
+  if (el) el.hidden = true;
+}
+
+// Avança respeitando: itens obrigatórios do passo, trava do override (Passo 5)
+// e salto do ato vinculado (Passo 2).
 function avancar() {
   const atual = estado.passoAtual;
 
-  // Passo 4 — override sem justificativa não avança.
+  // Itens obrigatórios — sem eles a memória de cálculo não condiz com a realidade.
+  const faltas = validarPasso(atual);
+  if (faltas.length) {
+    mostrarValidacao(faltas);
+    return;
+  }
+
+  // Passo 5 — override do piso sem justificativa não avança.
   if (atual === 4 && estado.override.ativo && !estado.override.justificativa.trim()) {
     const pend = $('#override-pendencia');
     if (pend) pend.hidden = false;
