@@ -32,8 +32,10 @@ window.REGUA = {
   //         esforço de entrega (0-8); escalas desinvertidas (todos os critérios
   //         crescem no sentido natural); "Risco" → "Risco de entrega"; o teto de
   //         complexidade por camada virou PISO (mínimo); plotagem em quadrantes.
-  versao: '2.0.0',
-  atualizadoEm: '2026-07-07',
+  //  2.1.0: descritores 1-4 do Impacto institucional passam a ligar as
+  //         dimensões com "e/ou" (sugestão da equipe após uso).
+  versao: '2.1.0',
+  atualizadoEm: '2026-10-28',
 
   // Piso de complexidade por camada. Escala natural (0 = trivial, 4 = altíssima):
   // a camada estabelece a complexidade MÍNIMA plausível. Nota ABAIXO do piso
@@ -88,24 +90,25 @@ window.REGUA = {
         // 0
         'Nenhuma das dimensões aparece. Demanda de conveniência local.',
         // 1
-        'Uma dimensão aparece de forma marginal: diretriz informal local, tema '
-        + 'lateral em reunião com controle sem recomendação formal, ou '
+        'Uma dimensão aparece de forma marginal: diretriz informal local, e/ou '
+        + 'tema lateral em reunião com controle sem recomendação formal, e/ou '
         + 'visibilidade restrita a um grupo pequeno.',
         // 2
         'Uma dimensão aparece com peso médio: normativa setorial que afeta um '
-        + 'grupo de órgãos; diretriz formal da SEGES/MGI; recomendação '
-        + 'não-vinculante em relatório de auditoria; visibilidade entre usuários '
-        + 'do SEI sem repercussão externa.',
+        + 'grupo de órgãos, e/ou diretriz formal da SEGES/MGI, e/ou recomendação '
+        + 'não-vinculante em relatório de auditoria, e/ou visibilidade entre '
+        + 'usuários do SEI sem repercussão externa.',
         // 3
         'Uma dimensão aparece forte: programa ou compromisso formal de governo '
-        + 'transversal; diretriz setorial muito ampla e cobrada; recomendação '
-        + 'reiterada de órgão de controle; citação na imprensa ou exposição a '
-        + 'usuário externo de forma sensível.',
+        + 'transversal, e/ou diretriz setorial muito ampla e cobrada, e/ou '
+        + 'recomendação reiterada de órgão de controle, e/ou citação na imprensa '
+        + 'ou exposição a usuário externo de forma sensível.',
         // 4
         'Dimensão crítica dentro do discricionário: programa prioritário de '
-        + 'governo com prazo e cobrança; recomendação reiterada de controle sob '
-        + 'forte pressão (sem ainda configurar determinação); compromisso público '
-        + 'com sociedade civil cobrado em conselho; risco reputacional concreto.',
+        + 'governo com prazo e cobrança, e/ou recomendação reiterada de controle '
+        + 'sob forte pressão (sem ainda configurar determinação), e/ou compromisso '
+        + 'público com sociedade civil cobrado em conselho e/ou risco reputacional '
+        + 'concreto.',
       ],
     },
 
